@@ -80,7 +80,7 @@ Um portal de notícias moderno e responsivo construído com Laravel, Vue.js e In
 - **Frontend**: Vue.js 3 + Inertia.js
 - **CSS**: Tailwind CSS
 - **API**: NewsAPI
-- **Banco de Dados**: MySQL/SQLite
+- **Banco de Dados**: SQL Server
 - **Build Tool**: Vite
 
 ## 📋 Pré-requisitos
@@ -91,7 +91,7 @@ Antes de começar, certifique-se de ter instalado:
 - **Composer**
 - **Node.js 18+**
 - **NPM ou Yarn**
-- **MySQL ou SQLite**
+- **SQL Server** (com drivers PHP SQL Server instalados)
 
 ## 🚀 Instalação
 
@@ -122,18 +122,20 @@ Copie o arquivo de ambiente:
 cp .env.example .env
 ```
 
-### 5. Configure o banco de dados
+### 5. Configure o banco de dados SQL Server
 
-Edite o arquivo `.env` e configure sua conexão com o banco de dados:
+Edite o arquivo `.env` e configure sua conexão com o SQL Server:
 
 ```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=portal_noticias
+DB_CONNECTION=sqlsrv
+DB_HOST=localhost
+DB_PORT=1433
+DB_DATABASE=laraveldb
 DB_USERNAME=seu_usuario
 DB_PASSWORD=sua_senha
 ```
+
+**Nota**: Certifique-se de que os drivers PHP SQL Server estão instalados e configurados.
 
 ### 6. Gere a chave da aplicação
 
@@ -249,6 +251,20 @@ O sistema possui fallback inteligente:
 2. Se não encontrar, tenta EUA
 3. Se falhar, usa dados de exemplo
 
+### SQL Server
+Para verificar os dados no SQL Server:
+
+```sql
+-- Verificar histórico de buscas
+SELECT * FROM search_histories ORDER BY created_at DESC;
+
+-- Verificar usuários
+SELECT * FROM users;
+
+-- Verificar cache
+SELECT * FROM cache;
+```
+
 ## 🐛 Solução de Problemas
 
 ### Erro: "Page not found"
@@ -258,7 +274,17 @@ php artisan cache:clear
 ```
 
 ### Erro: "Database connection failed"
-Verifique as configurações no `.env` e certifique-se de que o banco existe.
+- Verifique se o SQL Server está rodando
+- Confirme se os drivers PHP SQL Server estão instalados
+- Verifique as configurações no `.env`
+
+### Erro: "SQL Server drivers not found"
+Instale os drivers PHP SQL Server:
+```bash
+# Para Windows
+# Baixe e instale o Microsoft Drivers for PHP for SQL Server
+# Adicione a extensão no php.ini
+```
 
 ### Erro: "API key invalid"
 - Verifique se a chave da NewsAPI está correta
@@ -292,6 +318,9 @@ php artisan test
 
 # Acessar Tinker
 php artisan tinker
+
+# Verificar conexão com SQL Server
+php artisan tinker --execute="echo 'DB: ' . config('database.default');"
 ```
 
 ## 🌐 Endpoints da API
@@ -306,6 +335,30 @@ php artisan tinker
 - `POST /news/search` - Busca de notícias
 - `GET /news/category/{category}` - Notícias por categoria
 - `GET /history` - Histórico de buscas
+
+## 🗄️ Banco de Dados
+
+### SQL Server
+A aplicação utiliza SQL Server como banco de dados principal:
+
+- **Conexão**: `sqlsrv`
+- **Tabelas principais**:
+  - `users` - Usuários do sistema
+  - `search_histories` - Histórico de buscas
+  - `searches` - Buscas realizadas
+  - `cache` - Cache da aplicação
+  - `jobs` - Filas de trabalho
+  - `news` - Notícias (se usar dados locais)
+
+### Configuração
+```env
+DB_CONNECTION=sqlsrv
+DB_HOST=localhost
+DB_PORT=1433
+DB_DATABASE=laraveldb
+DB_USERNAME=seu_usuario
+DB_PASSWORD=sua_senha
+```
 
 ## 🤝 Contribuindo
 
@@ -334,7 +387,8 @@ Se você encontrar algum problema ou tiver dúvidas:
 - [Inertia.js](https://inertiajs.com/) - Adapter para SPA
 - [Tailwind CSS](https://tailwindcss.com/) - Framework CSS
 - [NewsAPI](https://newsapi.org/) - API de notícias
+- [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server/) - Banco de dados
 
 ---
 
-**Desenvolvido com ❤️ usando Laravel + Vue.js + Inertia.js**
+**Desenvolvido com ❤️ usando Laravel + Vue.js + Inertia.js + SQL Server**
