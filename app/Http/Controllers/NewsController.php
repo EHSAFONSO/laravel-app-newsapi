@@ -6,60 +6,112 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 use App\Models\Search;
+use App\Models\News;
+use App\Models\SearchHistory;
+use App\Services\NewsApiService;
 
 class NewsController extends Controller
 {
+    protected $newsApiService;
+
+    public function __construct(NewsApiService $newsApiService)
+    {
+        $this->newsApiService = $newsApiService;
+    }
+
     public function index(Request $request)
     {
-        $page = $request->input('page', 1);
-        $query = $request->input('query');
-
-        if ($query) {
-            // Salvar busca
-            Search::create(['query' => $query]);
-
-            // Busca por título usando /everything
-            $response = Http::get('https://newsapi.org/v2/everything', [
-                'q' => $query,
-                'searchIn' => 'title',
-                'apiKey' => env('NEWS_API_KEY'),
-                'page' => $page,
-                'pageSize' => 10,
-            ]);
-        } else {
-            // Top headlines padrão
-            $response = Http::get('https://newsapi.org/v2/top-headlines', [
-                'country' => 'us',
-                'apiKey' => env('NEWS_API_KEY'),
-                'page' => $page,
-                'pageSize' => 10,
-            ]);
-        }
-
-        $data = $response->json();
-
-        if ($data['status'] !== 'ok') {
-            return Inertia::render('News/Index', ['error' => $data['message'] ?? 'Erro na API']);
-        }
-
+        $page = $request->get('page', 1);
+        $category = $request->get('category', 'general');
+        
+        // Buscar notícias em destaque
+        $headlines = $this->newsApiService->getTopHeadlines('br', $page, 12);
+        
+        // Buscar notícias por categoria
+        $categoryNews = $this->newsApiService->getNewsByCategory($category, 'br', $page, 12);
+        
         return Inertia::render('News/Index', [
-            'articles' => $data['articles'],
-            'totalResults' => $data['totalResults'],
+            'headlines' => $headlines,
+            'categoryNews' => $categoryNews,
+            'currentCategory' => $category,
             'currentPage' => $page,
-            'query' => $query,
+            'categories' => [
+                'general' => 'Geral',
+                'business' => 'Negócios',
+                'technology' => 'Tecnologia',
+                'sports' => 'Esportes',
+                'entertainment' => 'Entretenimento',
+                'health' => 'Saúde',
+                'science' => 'Ciência'
+            ]
         ]);
     }
 
     public function history()
     {
-        $searches = Search::latest()->paginate(10);
+        $searches = SearchHistory::with('user')
+            ->latest()
+            ->paginate(10);
 
         return Inertia::render('History', ['searches' => $searches]);
     }
+
     public function apiIndex()
-{
-    return News::all();
-    // Retorne os dados que você precisa, por exemplo:
-    //return response()->json(['message' => 'apiIndex funcionando!']);
-}
+    {
+        // Exemplo de retorno JSON
+        return response()->json(['message' => 'API News funcionando!']);
+    }
+
+    public function search(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255'
+        ]);
+
+        $title = $request->input('title');
+        $page = $request->get('page', 1);
+        
+        // Buscar notícias na NewsAPI
+        $searchResults = $this->newsApiService->searchNews($title, $page, 12);
+
+        // Gravar a pesquisa no histórico
+        SearchHistory::create([
+            'title' => $title,
+            'user_id' => auth()->id() ?? null
+        ]);
+
+        return Inertia::render('News/Search', [
+            'searchResults' => $searchResults,
+            'searchTerm' => $title,
+            'currentPage' => $page
+        ]);
+    }
+
+    public function show($id)
+    {
+        $news = News::findOrFail($id);
+        return Inertia::render('News/Show', ['news' => $news]);
+    }
+
+    public function category(Request $request, $category)
+    {
+        $page = $request->get('page', 1);
+        
+        $categoryNews = $this->newsApiService->getNewsByCategory($category, 'br', $page, 12);
+        
+        return Inertia::render('News/Category', [
+            'categoryNews' => $categoryNews,
+            'category' => $category,
+            'currentPage' => $page,
+            'categories' => [
+                'general' => 'Geral',
+                'business' => 'Negócios',
+                'technology' => 'Tecnologia',
+                'sports' => 'Esportes',
+                'entertainment' => 'Entretenimento',
+                'health' => 'Saúde',
+                'science' => 'Ciência'
+            ]
+        ]);
+    }
 }
