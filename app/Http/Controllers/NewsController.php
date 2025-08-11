@@ -24,11 +24,12 @@ class NewsController extends Controller
         $page = $request->get('page', 1);
         $category = $request->get('category', 'general');
         
-        // Buscar notícias em destaque
-        $headlines = $this->newsApiService->getTopHeadlines('br', $page, 12);
+        // Buscar notícias em destaque (limite de 10)
+        $headlines = $this->newsApiService->getTopHeadlines('br', $page, 10);
         
-        // Buscar notícias por categoria
-        $categoryNews = $this->newsApiService->getNewsByCategory($category, 'br', $page, 12);
+        // Buscar notícias por categoria (limite de 10, página diferente para evitar repetição)
+        $categoryPage = $category === 'general' ? $page + 1 : $page; // Evita repetição quando categoria é 'general'
+        $categoryNews = $this->newsApiService->getNewsByCategory($category, 'br', $categoryPage, 10);
         
         // Verificar se há erro de limite da API
         $apiError = null;
@@ -94,8 +95,8 @@ class NewsController extends Controller
 
         $page = $request->get('page', 1);
         
-        // Buscar notícias na NewsAPI
-        $searchResults = $this->newsApiService->searchNews($title, $page, 12);
+        // Buscar notícias na NewsAPI (limite de 10)
+        $searchResults = $this->newsApiService->searchNews($title, $page, 10);
 
         // Gravar a pesquisa no histórico
         SearchHistory::create([
@@ -120,7 +121,8 @@ class NewsController extends Controller
     {
         $page = $request->get('page', 1);
         
-        $categoryNews = $this->newsApiService->getNewsByCategory($category, 'br', $page, 12);
+        // Buscar notícias por categoria (limite de 10)
+        $categoryNews = $this->newsApiService->getNewsByCategory($category, 'br', $page, 10);
         
         return Inertia::render('News/Category', [
             'categoryNews' => $categoryNews,

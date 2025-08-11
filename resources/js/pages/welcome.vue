@@ -108,9 +108,18 @@
             onmouseover="this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'" onmouseout="this.style.boxShadow='none'"
           >
             <!-- Imagem com Placeholder Estético -->
-            <div style="position: relative; height: 12rem; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center;" :style="getPlaceholderStyle(article)">
-              <div style="text-center text-white font-semibold text-lg px-4">
-                {{ getCategoryFromTitle(article.title) }}
+            <div style="position: relative; height: 12rem; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+              <img 
+                v-if="article.image" 
+                :src="article.image" 
+                :alt="article.title"
+                style="width: 100%; height: 100%; object-fit: cover;"
+                @error="$event.target.style.display='none'"
+              >
+              <div v-if="!article.image || $event?.target?.style?.display === 'none'" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;" :style="getPlaceholderStyle(article)">
+                <div style="text-center text-white font-semibold text-lg px-4">
+                  {{ article.category || getCategoryFromTitle(article.title) }}
+                </div>
               </div>
             </div>
             
@@ -200,7 +209,7 @@
               LinkedIn
             </a>
           </div>
-        </div>
+    </div>
       </div>
     </footer>
   </div>
@@ -208,7 +217,7 @@
 
 <script setup>
 import { useForm } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const searchForm = useForm({
   title: ''
@@ -224,36 +233,122 @@ const categories = ref({
   'science': 'Ciência'
 })
 
-const featuredNews = ref([
-  {
-    title: 'Tecnologia: Novos avanços em IA revolucionam o mercado',
-    description: 'Empresas de tecnologia anunciam descobertas significativas em inteligência artificial que podem transformar diversos setores.',
-    source: 'Tech News',
-    date: '09/08/2025',
-    image: null,
-    url: '/news/category/technology'
+const props = defineProps({
+  techNews: {
+    type: Object,
+    default: () => ({})
   },
-  {
-    title: 'Economia: Mercado brasileiro mostra sinais de recuperação',
-    description: 'Indicadores econômicos apontam para uma recuperação gradual do mercado brasileiro nos próximos meses.',
-    source: 'Economia Hoje',
-    date: '09/08/2025',
-    image: null,
-    url: '/news/category/business'
+  businessNews: {
+    type: Object,
+    default: () => ({})
   },
-  {
-    title: 'Saúde: Novas diretrizes para vacinação são anunciadas',
-    description: 'Ministério da Saúde divulga novas orientações para campanhas de vacinação em todo o país.',
-    source: 'Saúde Brasil',
-    date: '09/08/2025',
-    image: null,
-    url: '/news/category/health'
+  healthNews: {
+    type: Object,
+    default: () => ({})
+  },
+  headlines: {
+    type: Object,
+    default: () => ({})
   }
-])
+})
+
+const featuredNews = computed(() => {
+  const news = []
+  
+  // Adicionar notícia de tecnologia
+  if (props.techNews?.success && props.techNews.articles?.length > 0) {
+    const article = props.techNews.articles[0]
+    news.push({
+      title: article.title,
+      description: article.description,
+      source: article.source?.name || 'Tech News',
+      date: formatDate(article.publishedAt),
+      image: article.urlToImage,
+      url: article.url,
+      category: 'Tecnologia'
+    })
+  } else {
+    // Fallback para dados de exemplo
+    news.push({
+      title: 'Tecnologia: Novos avanços em IA revolucionam o mercado',
+      description: 'Empresas de tecnologia anunciam descobertas significativas em inteligência artificial que podem transformar diversos setores.',
+      source: 'Tech News',
+      date: '09/08/2025',
+      image: null,
+      url: '/news/category/technology',
+      category: 'Tecnologia'
+    })
+  }
+  
+  // Adicionar notícia de economia
+  if (props.businessNews?.success && props.businessNews.articles?.length > 0) {
+    const article = props.businessNews.articles[0]
+    news.push({
+      title: article.title,
+      description: article.description,
+      source: article.source?.name || 'Economia Hoje',
+      date: formatDate(article.publishedAt),
+      image: article.urlToImage,
+      url: article.url,
+      category: 'Economia'
+    })
+  } else {
+    // Fallback para dados de exemplo
+    news.push({
+      title: 'Economia: Mercado brasileiro mostra sinais de recuperação',
+      description: 'Indicadores econômicos apontam para uma recuperação gradual do mercado brasileiro nos próximos meses.',
+      source: 'Economia Hoje',
+      date: '09/08/2025',
+      image: null,
+      url: '/news/category/business',
+      category: 'Economia'
+    })
+  }
+  
+  // Adicionar notícia de saúde
+  if (props.healthNews?.success && props.healthNews.articles?.length > 0) {
+    const article = props.healthNews.articles[0]
+    news.push({
+      title: article.title,
+      description: article.description,
+      source: article.source?.name || 'Saúde Brasil',
+      date: formatDate(article.publishedAt),
+      image: article.urlToImage,
+      url: article.url,
+      category: 'Saúde'
+    })
+  } else {
+    // Fallback para dados de exemplo
+    news.push({
+      title: 'Saúde: Novas diretrizes para vacinação são anunciadas',
+      description: 'Ministério da Saúde divulga novas orientações para campanhas de vacinação em todo o país.',
+      source: 'Saúde Brasil',
+      date: '09/08/2025',
+      image: null,
+      url: '/news/category/health',
+      category: 'Saúde'
+    })
+  }
+  
+  return news
+})
 
 const searchNews = () => {
   if (!searchForm.title.trim()) return
   window.location.href = `/news/search?title=${encodeURIComponent(searchForm.title)}`
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'Data não disponível'
+  try {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  } catch (error) {
+    return 'Data não disponível'
+  }
 }
 
 const getCategoryFromTitle = (title) => {
@@ -261,24 +356,31 @@ const getCategoryFromTitle = (title) => {
   
   const titleLower = title.toLowerCase()
   
-  if (titleLower.includes('tecnologia') || titleLower.includes('tech') || titleLower.includes('ai') || titleLower.includes('inteligência artificial')) {
+  // Priorize categorias mais específicas ou diretas
+  if (titleLower.includes('tecnologia') || titleLower.includes('tech') || titleLower.includes('ai') || titleLower.includes('inteligência artificial') || titleLower.includes('inovação') || titleLower.includes('digital')) {
     return 'Tecnologia'
   }
-  if (titleLower.includes('economia') || titleLower.includes('negócio') || titleLower.includes('mercado') || titleLower.includes('financeiro')) {
+  
+  if (titleLower.includes('economia') || titleLower.includes('negócio') || titleLower.includes('mercado') || titleLower.includes('financeiro') || titleLower.includes('recuperação') || titleLower.includes('bolsa')) {
     return 'Economia'
   }
-  if (titleLower.includes('saúde') || titleLower.includes('medicina') || titleLower.includes('hospital')) {
+  
+  if (titleLower.includes('saúde') || titleLower.includes('medicina') || titleLower.includes('hospital') || titleLower.includes('vacinação')) {
     return 'Saúde'
   }
+  
   if (titleLower.includes('esporte') || titleLower.includes('futebol') || titleLower.includes('olímpico')) {
     return 'Esporte'
   }
+  
   if (titleLower.includes('política') || titleLower.includes('governo') || titleLower.includes('eleição')) {
     return 'Política'
   }
+  
   if (titleLower.includes('entretenimento') || titleLower.includes('filme') || titleLower.includes('música')) {
     return 'Entretenimento'
   }
+  
   if (titleLower.includes('ciência') || titleLower.includes('pesquisa') || titleLower.includes('descoberta')) {
     return 'Ciência'
   }

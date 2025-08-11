@@ -222,24 +222,31 @@ const getCategoryFromTitle = (title) => {
   
   const titleLower = title.toLowerCase()
   
-  if (titleLower.includes('tecnologia') || titleLower.includes('tech') || titleLower.includes('ai') || titleLower.includes('inteligência artificial')) {
+  // Priorize categorias mais específicas ou diretas
+  if (titleLower.includes('tecnologia') || titleLower.includes('tech') || titleLower.includes('ai') || titleLower.includes('inteligência artificial') || titleLower.includes('inovação') || titleLower.includes('digital')) {
     return 'Tecnologia'
   }
-  if (titleLower.includes('economia') || titleLower.includes('negócio') || titleLower.includes('mercado') || titleLower.includes('financeiro')) {
+  
+  if (titleLower.includes('economia') || titleLower.includes('negócio') || titleLower.includes('mercado') || titleLower.includes('financeiro') || titleLower.includes('recuperação') || titleLower.includes('bolsa')) {
     return 'Economia'
   }
-  if (titleLower.includes('saúde') || titleLower.includes('medicina') || titleLower.includes('hospital')) {
+  
+  if (titleLower.includes('saúde') || titleLower.includes('medicina') || titleLower.includes('hospital') || titleLower.includes('vacinação')) {
     return 'Saúde'
   }
+  
   if (titleLower.includes('esporte') || titleLower.includes('futebol') || titleLower.includes('olímpico')) {
     return 'Esporte'
   }
+  
   if (titleLower.includes('política') || titleLower.includes('governo') || titleLower.includes('eleição')) {
     return 'Política'
   }
+  
   if (titleLower.includes('entretenimento') || titleLower.includes('filme') || titleLower.includes('música')) {
     return 'Entretenimento'
   }
+  
   if (titleLower.includes('ciência') || titleLower.includes('pesquisa') || titleLower.includes('descoberta')) {
     return 'Ciência'
   }

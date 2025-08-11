@@ -6,7 +6,23 @@ use App\Http\Controllers\HistoryController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', ['message' => 'Inertia está funcionando!']);
+    // Buscar dados reais da API para a página inicial
+    $newsApiService = app(\App\Services\NewsApiService::class);
+    
+    // Buscar notícias de tecnologia, economia e saúde para os destaques
+    $techNews = $newsApiService->getNewsByCategory('technology', 'br', 1, 1);
+    $businessNews = $newsApiService->getNewsByCategory('business', 'br', 1, 1);
+    $healthNews = $newsApiService->getNewsByCategory('health', 'br', 1, 1);
+    
+    // Buscar headlines gerais (limite de 10)
+    $headlines = $newsApiService->getTopHeadlines('br', 1, 10);
+    
+    return Inertia::render('Welcome', [
+        'techNews' => $techNews,
+        'businessNews' => $businessNews,
+        'healthNews' => $healthNews,
+        'headlines' => $headlines
+    ]);
 });
 
 Route::get('/test', function () {

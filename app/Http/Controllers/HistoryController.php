@@ -11,6 +11,7 @@ class HistoryController extends Controller
     {
         $searchHistory = SearchHistory::with('user')
             ->latest()
+            ->limit(10)
             ->get();
 
         return Inertia::render('History', [
