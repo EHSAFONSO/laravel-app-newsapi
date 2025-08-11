@@ -30,11 +30,20 @@ class NewsController extends Controller
         // Buscar notícias por categoria
         $categoryNews = $this->newsApiService->getNewsByCategory($category, 'br', $page, 12);
         
+        // Verificar se há erro de limite da API
+        $apiError = null;
+        if (!$headlines['success'] && isset($headlines['error'])) {
+            $apiError = $headlines['error'];
+        } elseif (!$categoryNews['success'] && isset($categoryNews['error'])) {
+            $apiError = $categoryNews['error'];
+        }
+        
         return Inertia::render('News/Index', [
             'headlines' => $headlines,
             'categoryNews' => $categoryNews,
             'currentCategory' => $category,
             'currentPage' => $page,
+            'apiError' => $apiError,
             'categories' => [
                 'general' => 'Geral',
                 'business' => 'Negócios',
@@ -64,11 +73,25 @@ class NewsController extends Controller
 
     public function search(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255'
-        ]);
+        // Para requisições GET, pegar o título da query string
+        if ($request->isMethod('get')) {
+            $title = $request->query('title');
+        } else {
+            // Para requisições POST, validar e pegar do input
+            $request->validate([
+                'title' => 'required|string|max:255'
+            ]);
+            $title = $request->input('title');
+        }
 
-        $title = $request->input('title');
+        if (!$title) {
+            return Inertia::render('News/Search', [
+                'searchResults' => ['error' => 'Termo de busca é obrigatório'],
+                'searchTerm' => '',
+                'currentPage' => 1
+            ]);
+        }
+
         $page = $request->get('page', 1);
         
         // Buscar notícias na NewsAPI

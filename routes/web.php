@@ -9,6 +9,10 @@ Route::get('/', function () {
     return Inertia::render('Welcome', ['message' => 'Inertia está funcionando!']);
 });
 
+Route::get('/test', function () {
+    return Inertia::render('Test');
+});
+
 Route::get('/test-simple', function () {
     return Inertia::render('TestSimple');
 });

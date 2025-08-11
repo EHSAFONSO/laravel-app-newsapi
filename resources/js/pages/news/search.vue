@@ -1,175 +1,155 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
-          <h1 class="text-3xl font-bold text-gray-900">Resultados da Busca</h1>
-          <nav class="flex space-x-4">
-            <Link 
-              href="/news" 
-              class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Voltar ao Início
-            </Link>
-            <Link 
-              href="/history" 
-              class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Histórico
-            </Link>
-          </nav>
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center space-x-8">
+            <h1 class="text-2xl font-bold text-gray-900">Portal de Notícias</h1>
+            <nav class="flex space-x-6">
+              <a href="/news" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">
+                Início
+              </a>
+              <a href="/history" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">
+                Histórico
+              </a>
+            </nav>
+          </div>
+          <a href="/history" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Histórico
+          </a>
         </div>
       </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div class="px-4 py-6 sm:px-0">
-        <!-- Search Info -->
-        <div class="mb-6">
-          <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-2">
-              Resultados para: "{{ searchTerm }}"
-            </h2>
-            <p class="text-gray-600">
-              {{ searchResults.totalResults || 0 }} notícia{{ (searchResults.totalResults || 0) !== 1 ? 's' : '' }} encontrada{{ (searchResults.totalResults || 0) !== 1 ? 's' : '' }}
-            </p>
-          </div>
-        </div>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      
+      <!-- Search Results Header -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">
+          Resultados da busca: "{{ searchTerm }}"
+        </h2>
+        <p class="text-gray-600">
+          {{ searchResults.totalResults || searchResults.articles?.length || 0 }} notícias encontradas
+        </p>
+      </div>
 
-        <!-- Results -->
-        <div v-if="searchResults && searchResults.success && searchResults.articles && searchResults.articles.length > 0" class="mb-8">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <article 
-              v-for="article in searchResults.articles" 
-              :key="article.url"
-              class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <img 
-                v-if="article.urlToImage" 
-                :src="article.urlToImage" 
-                :alt="article.title"
-                class="w-full h-48 object-cover"
-                @error="handleImageError"
-              >
-              <div class="p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-3 line-clamp-2">
-                  {{ article.title }}
-                </h3>
-                
-                <p class="text-gray-600 text-sm mb-4 line-clamp-3">
-                  {{ article.description }}
-                </p>
-                
-                <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
-                  <span>{{ formatDate(article.publishedAt) }}</span>
-                  <span>{{ article.source?.name }}</span>
-                </div>
-                
-                <a 
-                  :href="article.url" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  class="inline-block px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Ler mais
-                </a>
-              </div>
-            </article>
-          </div>
-        </div>
-
-        <!-- No Results -->
-        <div v-else-if="searchResults && searchResults.success && (!searchResults.articles || searchResults.articles.length === 0)" class="text-center py-12">
-          <div class="bg-white rounded-lg shadow-lg p-8">
-            <div class="text-gray-400 mb-4">
-              <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <!-- Search Bar -->
+      <div class="mb-8">
+        <div class="max-w-2xl mx-auto">
+          <form @submit.prevent="searchNews" class="relative">
+            <div class="flex items-center bg-white border border-gray-300 rounded-lg px-4 py-3 hover:border-gray-400 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-colors">
+              <svg class="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
+              <input
+                v-model="searchForm.title"
+                type="text"
+                placeholder="Buscar notícias..."
+                class="flex-1 text-base border-none outline-none bg-transparent min-w-0"
+                required
+              >
+              <button
+                type="submit"
+                :disabled="searchForm.processing"
+                class="ml-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 font-medium transition-colors text-sm flex-shrink-0"
+              >
+                <span v-if="searchForm.processing">Buscando...</span>
+                <span v-else>Buscar</span>
+              </button>
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">
-              Nenhuma notícia encontrada
-            </h3>
-            <p class="text-gray-600 mb-6">
-              Não encontramos notícias com o termo "{{ searchTerm }}". Tente usar palavras-chave diferentes.
-            </p>
-            <Link 
-              href="/news"
-              class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Nova Busca
-            </Link>
-          </div>
+          </form>
         </div>
+      </div>
 
-        <!-- Loading State -->
-        <div v-else-if="!searchResults" class="text-center py-12">
-          <div class="bg-white rounded-lg shadow-lg p-8">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p class="text-gray-600">Buscando notícias...</p>
-          </div>
+      <!-- Search Results -->
+      <div v-if="searchResults && searchResults.success && searchResults.articles && searchResults.articles.length > 0" class="mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <article 
+            v-for="(article, index) in searchResults.articles" 
+            :key="`search-${index}-${article.url}`"
+            class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+          >
+            <!-- Imagem -->
+            <div class="relative h-48 bg-gray-200">
+              <div v-if="article.urlToImage && !imageErrors[`search-${index}`]" class="w-full h-full">
+                <img 
+                  :src="article.urlToImage" 
+                  :alt="article.title"
+                  class="w-full h-full object-cover"
+                  @error="handleImageError(`search-${index}`)"
+                  @load="handleImageLoad(`search-${index}`)"
+                >
+              </div>
+              <div v-else class="w-full h-full flex items-center justify-center" :style="getPlaceholderStyle(article)">
+                <div class="text-center text-white font-semibold text-lg px-4">
+                  {{ getCategoryFromTitle(article.title) }}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Conteúdo -->
+            <div class="p-4">
+              <div class="flex items-center space-x-2 mb-2">
+                <span class="text-xs text-gray-500 font-medium">{{ article.source?.name || 'Fonte' }}</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-xs text-gray-500">{{ formatDate(article.publishedAt) }}</span>
+              </div>
+              <h4 class="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 leading-tight">
+                <a :href="article.url" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors">
+                  {{ article.title }}
+                </a>
+              </h4>
+              <p class="text-xs text-gray-600 line-clamp-2 mb-3">
+                {{ article.description || 'Descrição não disponível' }}
+              </p>
+              <a 
+                :href="article.url" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="text-xs text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Ler mais →
+              </a>
+            </div>
+          </article>
         </div>
+      </div>
 
-        <!-- Error Message -->
-        <div v-else-if="searchResults && searchResults.error" class="text-center py-12">
-          <div class="bg-red-50 border border-red-200 rounded-lg p-8">
-            <h3 class="text-lg font-medium text-red-900 mb-2">
-              Erro na busca
-            </h3>
-            <p class="text-red-700 mb-6">
-              {{ searchResults.error }}
-            </p>
-            <Link 
-              href="/news"
-              class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Voltar ao Início
-            </Link>
-          </div>
-        </div>
+      <!-- Loading State -->
+      <div v-if="!searchResults" class="text-center py-16">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p class="text-gray-600">Buscando notícias...</p>
+      </div>
 
-        <!-- Pagination -->
-        <div v-if="searchResults && searchResults.totalPages && searchResults.totalPages > 1" class="flex justify-center">
-          <div class="bg-white rounded-lg shadow-lg px-4 py-3">
-            <nav class="flex space-x-2">
-              <Link
-                v-if="currentPage > 1"
-                :href="`/news/search?title=${encodeURIComponent(searchTerm)}&page=${currentPage - 1}`"
-                class="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
-              >
-                Anterior
-              </Link>
-              
-              <span 
-                v-for="page in getPageNumbers()" 
-                :key="page"
-                class="px-3 py-2 rounded"
-                :class="page === currentPage ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'"
-              >
-                <Link v-if="page !== currentPage" :href="`/news/search?title=${encodeURIComponent(searchTerm)}&page=${page}`">
-                  {{ page }}
-                </Link>
-                <span v-else>{{ page }}</span>
-              </span>
-              
-              <Link
-                v-if="currentPage < (searchResults.totalPages || 1)"
-                :href="`/news/search?title=${encodeURIComponent(searchTerm)}&page=${currentPage + 1}`"
-                class="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
-              >
-                Próxima
-              </Link>
-            </nav>
-          </div>
+      <!-- No Results Message -->
+      <div v-if="searchResults && searchResults.success && (!searchResults.articles || searchResults.articles.length === 0)" class="text-center py-16">
+        <div class="max-w-md mx-auto">
+          <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Nenhuma notícia encontrada</h3>
+          <p class="text-gray-600 mb-6">
+            Tente buscar por outros termos ou verificar outras categorias.
+          </p>
         </div>
+      </div>
+
+      <!-- Error Message -->
+      <div v-if="searchResults && searchResults.error" class="bg-red-50 border border-red-200 rounded-lg p-6">
+        <p class="text-red-700">{{ searchResults.error }}</p>
       </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
+import { useForm } from '@inertiajs/vue3'
+import { ref, reactive } from 'vue'
 
 const props = defineProps({
   searchResults: {
@@ -186,55 +166,85 @@ const props = defineProps({
   }
 })
 
+const searchForm = useForm({
+  title: props.searchTerm
+})
+
+const imageErrors = reactive({})
+
+const searchNews = () => {
+  if (!searchForm.title.trim()) return
+  window.location.href = `/news/search?title=${encodeURIComponent(searchForm.title)}`
+}
+
 const formatDate = (dateString) => {
-  if (!dateString) return ''
-  return new Date(dateString).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
+  if (!dateString) return 'Data não disponível'
+  try {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  } catch (error) {
+    return 'Data não disponível'
+  }
 }
 
-const handleImageError = (event) => {
-  event.target.style.display = 'none'
+const handleImageError = (imageKey) => {
+  imageErrors[imageKey] = true
 }
 
-const getPageNumbers = () => {
-  const totalPages = props.searchResults.totalPages || 1
-  const current = props.currentPage
-  const pages = []
+const handleImageLoad = (imageKey) => {
+  imageErrors[imageKey] = false
+}
+
+const getCategoryFromTitle = (title) => {
+  if (!title) return 'Notícia'
   
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i)
-    }
-  } else {
-    if (current <= 4) {
-      for (let i = 1; i <= 5; i++) {
-        pages.push(i)
-      }
-      pages.push('...')
-      pages.push(totalPages)
-    } else if (current >= totalPages - 3) {
-      pages.push(1)
-      pages.push('...')
-      for (let i = totalPages - 4; i <= totalPages; i++) {
-        pages.push(i)
-      }
-    } else {
-      pages.push(1)
-      pages.push('...')
-      for (let i = current - 1; i <= current + 1; i++) {
-        pages.push(i)
-      }
-      pages.push('...')
-      pages.push(totalPages)
-    }
+  const titleLower = title.toLowerCase()
+  
+  if (titleLower.includes('tecnologia') || titleLower.includes('tech') || titleLower.includes('ai') || titleLower.includes('inteligência artificial')) {
+    return 'Tecnologia'
+  }
+  if (titleLower.includes('economia') || titleLower.includes('negócio') || titleLower.includes('mercado') || titleLower.includes('financeiro')) {
+    return 'Economia'
+  }
+  if (titleLower.includes('saúde') || titleLower.includes('medicina') || titleLower.includes('hospital')) {
+    return 'Saúde'
+  }
+  if (titleLower.includes('esporte') || titleLower.includes('futebol') || titleLower.includes('olímpico')) {
+    return 'Esporte'
+  }
+  if (titleLower.includes('política') || titleLower.includes('governo') || titleLower.includes('eleição')) {
+    return 'Política'
+  }
+  if (titleLower.includes('entretenimento') || titleLower.includes('filme') || titleLower.includes('música')) {
+    return 'Entretenimento'
+  }
+  if (titleLower.includes('ciência') || titleLower.includes('pesquisa') || titleLower.includes('descoberta')) {
+    return 'Ciência'
   }
   
-  return pages
+  return 'Notícia'
+}
+
+const getPlaceholderStyle = (article) => {
+  const category = getCategoryFromTitle(article.title)
+  
+  const gradients = {
+    'Tecnologia': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    'Economia': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    'Saúde': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    'Esporte': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    'Política': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    'Entretenimento': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+    'Ciência': 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+    'Notícia': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+  }
+  
+  return {
+    background: gradients[category] || gradients['Notícia']
+  }
 }
 </script>
 
@@ -242,13 +252,6 @@ const getPageNumbers = () => {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

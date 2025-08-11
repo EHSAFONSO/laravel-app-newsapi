@@ -1,195 +1,176 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-white">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
-          <h1 class="text-3xl font-bold text-gray-900">{{ categories[category] || 'Categoria' }}</h1>
-          <nav class="flex space-x-4">
-            <Link 
+    <header class="border-b border-gray-200 bg-white sticky top-0 z-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center space-x-8">
+            <h1 class="text-2xl font-bold text-gray-900">Portal de Notícias</h1>
+            <nav class="flex space-x-6">
+              <a 
+                href="/news" 
+                class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Início
+              </a>
+              <a 
+                href="/history" 
+                class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Histórico
+              </a>
+            </nav>
+          </div>
+          <div class="flex items-center space-x-4">
+            <a 
               href="/news" 
-              class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors text-sm font-medium"
             >
               Voltar ao Início
-            </Link>
-            <Link 
+            </a>
+            <a 
               href="/history" 
-              class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              class="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition-colors text-sm font-medium"
             >
-              Histórico
-            </Link>
-          </nav>
+              Ver Histórico
+            </a>
+          </div>
         </div>
       </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div class="px-4 py-6 sm:px-0">
-        
-        <!-- Category Info -->
-        <div class="mb-6">
-          <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-2">
-              {{ categories[category] || 'Categoria' }}
-            </h2>
-            <p class="text-gray-600">
-              {{ categoryNews.totalResults || 0 }} notícia{{ (categoryNews.totalResults || 0) !== 1 ? 's' : '' }} encontrada{{ (categoryNews.totalResults || 0) !== 1 ? 's' : '' }}
-            </p>
-          </div>
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      
+      <!-- Category Header -->
+      <div class="mb-12">
+        <div class="text-center">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            {{ categoryLabel }}
+          </h2>
+          <p class="text-gray-600 text-lg">
+            {{ categoryNews.totalResults || 0 }} notícias encontradas
+          </p>
         </div>
+      </div>
 
-        <!-- Category Navigation -->
-        <div class="mb-8">
-          <div class="bg-white rounded-lg shadow-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Outras Categorias</h3>
-            <div class="flex flex-wrap gap-2">
-              <Link
-                v-for="(label, key) in categories"
-                :key="key"
-                :href="`/news/category/${key}`"
-                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                :class="{ 'bg-blue-100 text-blue-700': category === key }"
-              >
-                {{ label }}
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <!-- News Grid -->
-        <div v-if="categoryNews && categoryNews.success && categoryNews.articles && categoryNews.articles.length > 0" class="mb-8">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <article 
-              v-for="article in categoryNews.articles" 
-              :key="article.url"
-              class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <img 
-                v-if="article.urlToImage" 
-                :src="article.urlToImage" 
-                :alt="article.title"
-                class="w-full h-48 object-cover"
-                @error="handleImageError"
-              >
-              <div class="p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-3 line-clamp-2">
-                  {{ article.title }}
-                </h3>
-                
-                <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+      <!-- Category News -->
+      <div v-if="categoryNews && categoryNews.success && categoryNews.articles && categoryNews.articles.length > 0" class="mb-16">
+        <div class="space-y-8">
+          <article 
+            v-for="article in categoryNews.articles" 
+            :key="article.url"
+            class="border-b border-gray-200 pb-8 last:border-b-0"
+          >
+            <div class="flex gap-6">
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-3">
+                  <span class="text-sm text-gray-500">{{ article.source?.name }}</span>
+                  <span class="text-gray-300">•</span>
+                  <span class="text-sm text-gray-500">{{ formatDate(article.publishedAt) }}</span>
+                </div>
+                <h4 class="text-xl font-bold text-gray-900 mb-3 leading-tight hover:text-gray-700 transition-colors">
+                  <a :href="article.url" target="_blank" rel="noopener noreferrer">
+                    {{ article.title }}
+                  </a>
+                </h4>
+                <p class="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
                   {{ article.description }}
                 </p>
-                
-                <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
-                  <span>{{ formatDate(article.publishedAt) }}</span>
-                  <span>{{ article.source?.name }}</span>
+                <div class="flex items-center justify-between">
+                  <a 
+                    :href="article.url" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors"
+                  >
+                    Ler mais →
+                  </a>
                 </div>
-                
-                <a 
-                  :href="article.url" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  class="inline-block px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Ler mais
-                </a>
               </div>
-            </article>
-          </div>
-        </div>
-
-        <!-- No Results -->
-        <div v-else-if="categoryNews && categoryNews.success && (!categoryNews.articles || categoryNews.articles.length === 0)" class="text-center py-12">
-          <div class="bg-white rounded-lg shadow-lg p-8">
-            <div class="text-gray-400 mb-4">
-              <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+              <div class="hidden md:block flex-shrink-0">
+                <img 
+                  v-if="article.urlToImage" 
+                  :src="article.urlToImage" 
+                  :alt="article.title"
+                  class="w-32 h-24 object-cover rounded-lg"
+                  @error="handleImageError"
+                >
+              </div>
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">
-              Nenhuma notícia encontrada
-            </h3>
-            <p class="text-gray-600 mb-6">
-              Não encontramos notícias na categoria "{{ categories[category] }}".
-            </p>
-            <Link 
-              href="/news"
-              class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Voltar ao Início
-            </Link>
-          </div>
+          </article>
         </div>
+      </div>
 
-        <!-- Loading State -->
-        <div v-else-if="!categoryNews" class="text-center py-12">
-          <div class="bg-white rounded-lg shadow-lg p-8">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p class="text-gray-600">Carregando notícias da categoria...</p>
-          </div>
-        </div>
+      <!-- Loading State -->
+      <div v-if="!categoryNews" class="text-center py-16">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+        <p class="text-gray-600">Carregando notícias...</p>
+      </div>
 
-        <!-- Error Message -->
-        <div v-else-if="categoryNews && categoryNews.error" class="text-center py-12">
-          <div class="bg-red-50 border border-red-200 rounded-lg p-8">
-            <h3 class="text-lg font-medium text-red-900 mb-2">
-              Erro ao carregar notícias
-            </h3>
-            <p class="text-red-700 mb-6">
-              {{ categoryNews.error }}
-            </p>
-            <Link 
-              href="/news"
-              class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Voltar ao Início
-            </Link>
-          </div>
+      <!-- No Results Message -->
+      <div v-if="categoryNews && categoryNews.success && (!categoryNews.articles || categoryNews.articles.length === 0)" class="text-center py-16">
+        <div class="max-w-md mx-auto">
+          <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Nenhuma notícia encontrada</h3>
+          <p class="text-gray-600 mb-6">
+            Não há notícias disponíveis nesta categoria no momento.
+          </p>
+          <a 
+            href="/news" 
+            class="inline-block px-6 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-colors font-medium"
+          >
+            Voltar ao início
+          </a>
         </div>
+      </div>
 
-        <!-- Pagination -->
-        <div v-if="categoryNews && categoryNews.totalPages && categoryNews.totalPages > 1" class="flex justify-center">
-          <div class="bg-white rounded-lg shadow-lg px-4 py-3">
-            <nav class="flex space-x-2">
-              <Link
-                v-if="currentPage > 1"
-                :href="`/news/category/${category}?page=${currentPage - 1}`"
-                class="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
-              >
-                Anterior
-              </Link>
-              
-              <span 
-                v-for="page in getPageNumbers()" 
-                :key="page"
-                class="px-3 py-2 rounded"
-                :class="page === currentPage ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'"
-              >
-                <Link v-if="page !== currentPage" :href="`/news/category/${category}?page=${page}`">
-                  {{ page }}
-                </Link>
-                <span v-else>{{ page }}</span>
-              </span>
-              
-              <Link
-                v-if="currentPage < (categoryNews.totalPages || 1)"
-                :href="`/news/category/${category}?page=${currentPage + 1}`"
-                class="px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
-              >
-                Próxima
-              </Link>
-            </nav>
-          </div>
-        </div>
+      <!-- Error Message -->
+      <div v-if="categoryNews && categoryNews.error" class="bg-red-50 border border-red-200 rounded-lg p-6">
+        <p class="text-red-700">
+          {{ categoryNews.error }}
+        </p>
+      </div>
+
+      <!-- Pagination -->
+      <div v-if="categoryNews && categoryNews.totalPages && categoryNews.totalPages > 1" class="flex justify-center mt-12">
+        <nav class="flex space-x-2">
+          <a
+            v-if="currentPage > 1"
+            :href="`/news/category/${category}?page=${currentPage - 1}`"
+            class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            ← Anterior
+          </a>
+          
+          <span 
+            v-for="page in getPageNumbers()" 
+            :key="page"
+            class="px-4 py-2 rounded-lg"
+            :class="page === currentPage ? 'bg-black text-white' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'"
+          >
+            <a v-if="page !== currentPage" :href="`/news/category/${category}?page=${page}`">
+              {{ page }}
+            </a>
+            <span v-else>{{ page }}</span>
+          </span>
+          
+          <a
+            v-if="currentPage < (categoryNews.totalPages || 1)"
+            :href="`/news/category/${category}?page=${currentPage + 1}`"
+            class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            Próxima →
+          </a>
+        </nav>
       </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
-
 const props = defineProps({
   categoryNews: {
     type: Object,
@@ -199,13 +180,13 @@ const props = defineProps({
     type: String,
     default: 'general'
   },
+  categoryLabel: {
+    type: String,
+    default: 'Notícias'
+  },
   currentPage: {
     type: Number,
     default: 1
-  },
-  categories: {
-    type: Object,
-    default: () => ({})
   }
 })
 
@@ -214,9 +195,7 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    year: 'numeric'
   })
 }
 
@@ -262,13 +241,6 @@ const getPageNumbers = () => {
 </script>
 
 <style scoped>
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;

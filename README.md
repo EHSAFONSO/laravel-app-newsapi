@@ -73,15 +73,19 @@ Um portal de notícias moderno e responsivo construído com Laravel, Vue.js e In
 - **📱 Design Responsivo**: Interface adaptável para desktop, tablet e mobile
 - **⚡ Performance**: Cache inteligente e otimizações de performance
 - **🌍 API Real**: Integração com NewsAPI para notícias reais
+- **🎨 Design Moderno**: Interface inspirada no Google News com placeholders estéticos
+- **⚠️ Sistema de Fallback**: Dados de exemplo quando a API está indisponível
+- **📊 Monitoramento**: Logs detalhados e alertas visuais
 
 ## 🛠️ Tecnologias Utilizadas
 
 - **Backend**: Laravel 11
 - **Frontend**: Vue.js 3 + Inertia.js
-- **CSS**: Tailwind CSS
+- **CSS**: Tailwind CSS 3.4.0
 - **API**: NewsAPI
 - **Banco de Dados**: SQL Server
 - **Build Tool**: Vite
+- **Cache**: Laravel Cache
 
 ## 📋 Pré-requisitos
 
@@ -157,7 +161,7 @@ Para usar notícias reais, obtenha uma chave gratuita em [NewsAPI](https://newsa
 NEWS_API_KEY=sua_chave_aqui
 ```
 
-**Nota**: Se não configurar a API key, o sistema usará dados de exemplo.
+**Nota**: Se não configurar a API key ou se a API estiver com limite excedido, o sistema usará dados de exemplo automaticamente.
 
 ### 9. Compile os assets
 
@@ -195,7 +199,8 @@ laravel-app/
 │           │   ├── search.vue     # Resultados de busca
 │           │   ├── category.vue   # Notícias por categoria
 │           │   └── show.vue       # Detalhes da notícia
-│           └── history.vue        # Página do histórico
+│           ├── history.vue        # Página do histórico
+│           └── welcome.vue        # Página inicial
 ├── routes/
 │   └── web.php                    # Rotas da aplicação
 └── database/
@@ -204,10 +209,17 @@ laravel-app/
 
 ## 🎯 Como Usar
 
+### Página Inicial (`/`)
+- Landing page com design moderno
+- Seção de notícias em destaque
+- Links para categorias principais
+- Informações sobre o projeto
+
 ### Página Principal (`/news`)
 - Visualize notícias em destaque
 - Navegue pelas categorias
 - Use o formulário de busca
+- Alerta visual quando API está com limite excedido
 
 ### Busca (`/news/search`)
 - Digite palavras-chave para buscar notícias
@@ -242,14 +254,26 @@ php artisan cache:clear  # Limpar cache
 Monitore as requisições à API nos logs:
 
 ```bash
+# Windows PowerShell
+Get-Content storage/logs/laravel.log -Tail 50
+
+# Linux/Mac
 tail -f storage/logs/laravel.log
 ```
 
-### Fallback da API
-O sistema possui fallback inteligente:
-1. Tenta notícias do Brasil
-2. Se não encontrar, tenta EUA
-3. Se falhar, usa dados de exemplo
+### Sistema de Fallback Inteligente
+O sistema possui fallback em múltiplas camadas:
+
+1. **Tenta notícias do Brasil** (português)
+2. **Se não encontrar, tenta EUA** (inglês)
+3. **Se API falhar, usa dados de exemplo** com alerta visual
+4. **Detecção específica de limite excedido** (erro 429)
+
+### Placeholders Estéticos
+Quando imagens não carregam, o sistema exibe:
+- Gradientes coloridos por categoria
+- Texto da categoria detectada automaticamente
+- Design consistente com o layout
 
 ### SQL Server
 Para verificar os dados no SQL Server:
@@ -286,9 +310,10 @@ Instale os drivers PHP SQL Server:
 # Adicione a extensão no php.ini
 ```
 
-### Erro: "API key invalid"
-- Verifique se a chave da NewsAPI está correta
-- O sistema funcionará com dados de exemplo se a API falhar
+### Erro: "API key invalid" ou "Rate Limited"
+- **Limite excedido**: Aguarde algumas horas para reset (conta gratuita: 100 req/24h)
+- **Chave inválida**: Verifique se a chave da NewsAPI está correta
+- **Sistema funcionará** com dados de exemplo se a API falhar
 
 ### Tela em branco
 ```bash
@@ -296,6 +321,15 @@ php artisan config:clear
 php artisan route:clear
 php artisan view:clear
 npm run build
+```
+
+### Assets não carregam
+```bash
+# Inicie o Vite em modo de desenvolvimento
+npm run dev
+
+# Em outro terminal, inicie o Laravel
+php artisan serve
 ```
 
 ## 📊 Comandos Úteis
@@ -309,6 +343,9 @@ php artisan view:clear
 
 # Recompilar assets
 npm run build
+
+# Modo de desenvolvimento (Hot Module Replacement)
+npm run dev
 
 # Verificar status das migrações
 php artisan migrate:status
@@ -331,6 +368,7 @@ php artisan tinker --execute="echo 'DB: ' . config('database.default');"
 - **Categorias**: `/v2/top-headlines?category={categoria}`
 
 ### Rotas da Aplicação
+- `GET /` - Página inicial
 - `GET /news` - Página principal
 - `POST /news/search` - Busca de notícias
 - `GET /news/category/{category}` - Notícias por categoria
@@ -359,6 +397,38 @@ DB_DATABASE=laraveldb
 DB_USERNAME=seu_usuario
 DB_PASSWORD=sua_senha
 ```
+
+## ⚠️ Status da API
+
+### NewsAPI - Conta Gratuita
+- **Limite**: 100 requisições por 24 horas
+- **Reset**: A cada 12 horas
+- **Fallback**: Dados de exemplo quando limite excedido
+
+### Alertas Visuais
+O sistema exibe alertas quando:
+- API está com limite excedido
+- Dados de exemplo estão sendo usados
+- Erros de conexão ocorrem
+
+### Monitoramento
+- Logs detalhados em `storage/logs/laravel.log`
+- Status da API em tempo real
+- Métricas de uso
+
+## 🎨 Design e UX
+
+### Interface Moderna
+- Design inspirado no Google News
+- Placeholders estéticos para imagens
+- Gradientes coloridos por categoria
+- Responsivo para todos os dispositivos
+
+### Funcionalidades
+- Busca em tempo real
+- Navegação intuitiva
+- Histórico de buscas
+- Paginação otimizada
 
 ## 🤝 Contribuindo
 
@@ -391,4 +461,8 @@ Se você encontrar algum problema ou tiver dúvidas:
 
 ---
 
-**Desenvolvido com ❤️ usando Laravel + Vue.js + Inertia.js + SQL Server**
+**Desenvolvido com ❤️ por Eduardo Henrique Dos Santos Afonso**
+
+**LinkedIn**: [https://www.linkedin.com/in/ehsafonso/](https://www.linkedin.com/in/ehsafonso/)
+
+**Portal de Notícias** - Laravel + Vue.js + Inertia.js + SQL Server

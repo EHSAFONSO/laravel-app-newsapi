@@ -13,7 +13,7 @@ class NewsApiService
 
     public function __construct()
     {
-        $this->apiKey = '534d12e4d1754b0a898e324454e122c8';
+        $this->apiKey = env('NEWS_API_KEY', '534d12e4d1754b0a898e324454e122c8');
     }
 
     public function searchNews($query, $page = 1, $pageSize = 10)
@@ -78,6 +78,18 @@ class NewsApiService
                     ];
                 }
 
+                if ($response->status() === 429) {
+                    Log::warning("API com limite excedido (429). Aguarde algumas horas para reset.");
+                    return [
+                        'success' => false,
+                        'error' => 'Limite de requisições da API excedido. Aguarde algumas horas para reset.',
+                        'articles' => [],
+                        'totalResults' => 0,
+                        'currentPage' => $page,
+                        'totalPages' => 0
+                    ];
+                }
+                
                 Log::warning("API falhou, usando dados de exemplo. Status: " . $response->status());
                 // Se a API falhou, retorna dados de exemplo
                 return $this->getDemoSearchResults($query, $page, $pageSize);
@@ -147,6 +159,18 @@ class NewsApiService
                     ];
                 }
 
+                if ($response->status() === 429) {
+                    Log::warning("API com limite excedido (429). Aguarde algumas horas para reset.");
+                    return [
+                        'success' => false,
+                        'error' => 'Limite de requisições da API excedido. Aguarde algumas horas para reset.',
+                        'articles' => [],
+                        'totalResults' => 0,
+                        'currentPage' => $page,
+                        'totalPages' => 0
+                    ];
+                }
+                
                 Log::warning("API falhou, usando dados de exemplo. Status: " . $response->status());
                 // Se a API falhou, retorna dados de exemplo
                 return $this->getDemoHeadlines($page, $pageSize);
@@ -218,6 +242,18 @@ class NewsApiService
                     ];
                 }
 
+                if ($response->status() === 429) {
+                    Log::warning("API com limite excedido (429). Aguarde algumas horas para reset.");
+                    return [
+                        'success' => false,
+                        'error' => 'Limite de requisições da API excedido. Aguarde algumas horas para reset.',
+                        'articles' => [],
+                        'totalResults' => 0,
+                        'currentPage' => $page,
+                        'totalPages' => 0
+                    ];
+                }
+                
                 Log::warning("API falhou, usando dados de exemplo. Status: " . $response->status());
                 // Se a API falhou, retorna dados de exemplo
                 return $this->getDemoCategoryResults($category, $page, $pageSize);
