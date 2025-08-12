@@ -1,31 +1,37 @@
 <template>
-  <div class="min-h-screen bg-white">
-    <!-- Header -->
-    <header class="border-b border-gray-200 bg-white sticky top-0 z-50">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Header Moderno com Glassmorphism -->
+    <header class="backdrop-blur-md bg-white/80 dark:bg-gray-900/80 border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
-          <div class="flex items-center space-x-8">
-            <h1 class="text-2xl font-bold text-gray-900">Portal de Notícias</h1>
-            <nav class="flex space-x-6">
-              <a 
-                href="/news" 
-                class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
-              >
-                Início
-              </a>
-              <a 
-                href="/history" 
-                class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
-              >
-                Histórico
-              </a>
-            </nav>
+          <!-- Logo e Nome -->
+          <div class="flex items-center space-x-4">
+            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              </svg>
+            </div>
+            <h1 class="text-2xl font-bold gradient-text-blue">
+              Portal de Notícias
+            </h1>
           </div>
-          <div class="flex items-center space-x-3">
-            <a 
-              href="/" 
-              class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-            >
+          
+          <!-- Desktop Navigation -->
+          <nav class="hidden md:flex space-x-1">
+            <a href="/news" class="relative px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors group">
+              Início
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="/history" class="relative px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors group">
+              Histórico
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+          </nav>
+          
+          <!-- Desktop Actions -->
+          <div class="hidden md:flex items-center space-x-3">
+            <ThemeToggle />
+            <a href="/" class="btn-secondary hover-scale">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
@@ -36,20 +42,54 @@
             <a 
               v-if="article && article.category && article.category !== 'general'"
               :href="`/news/category/${article.category}`"
-              class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+              class="btn-primary hover-scale"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               {{ article.categoryLabel }}
             </a>
-            
-            <a 
-              href="/news" 
-              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors text-sm font-medium"
+          </div>
+          
+          <!-- Mobile Menu Button -->
+          <div class="md:hidden">
+            <button 
+              @click="mobileMenuOpen = !mobileMenuOpen"
+              class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200 focus-ring"
             >
-              Voltar ao Início
-            </a>
+              <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="md:hidden" :class="mobileMenuOpen ? 'block' : 'hidden'">
+          <div class="py-4 border-t border-gray-200/50 dark:border-gray-700/50">
+            <nav class="flex flex-col space-y-2">
+              <a href="/news" class="text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
+                Início
+              </a>
+              <a href="/history" class="text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
+                Histórico
+              </a>
+            </nav>
+            <div class="mt-4 pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+              <a href="/" class="text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors block">
+                Tela Inicial
+              </a>
+              <a 
+                v-if="article && article.category && article.category !== 'general'"
+                :href="`/news/category/${article.category}`"
+                class="text-blue-600 dark:text-blue-400 px-3 py-2 text-sm font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors block mt-2"
+              >
+                {{ article.categoryLabel }}
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -59,7 +99,7 @@
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       
       <!-- Article -->
-      <article v-if="article" class="mb-16">
+      <article v-if="article" class="mb-16 fade-in-up">
         <!-- Article Header -->
         <header class="mb-8">
           <div class="flex items-center space-x-2 mb-4">
@@ -68,11 +108,11 @@
             <span class="text-sm text-gray-500">{{ formatDate(article.publishedAt) }}</span>
           </div>
           
-          <h1 class="text-4xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
             {{ article.title }}
           </h1>
           
-          <p class="text-xl text-gray-600 leading-relaxed mb-8">
+          <p class="text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
             {{ article.description }}
           </p>
           
@@ -81,7 +121,7 @@
             <a 
               v-if="article.category && article.category !== 'general'"
               :href="`/news/category/${article.category}`"
-              class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium"
+              class="btn-primary hover-scale"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -92,7 +132,7 @@
             <!-- Botão Voltar ao Início -->
             <a 
               href="/news" 
-              class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors font-medium"
+              class="btn-secondary hover-scale"
             >
               Voltar ao início
             </a>
@@ -111,22 +151,22 @@
 
         <!-- Article Content -->
         <div class="prose prose-lg max-w-none">
-          <div v-if="article.content" class="text-gray-700 leading-relaxed">
+          <div v-if="article.content" class="text-gray-700 dark:text-gray-300 leading-relaxed">
             <!-- Conteúdo formatado com parágrafos -->
             <div v-html="formatContent(article.content)"></div>
           </div>
           
-          <div v-else class="text-gray-600 italic">
+          <div v-else class="text-gray-600 dark:text-gray-400 italic">
             <p>Conteúdo completo não disponível no momento.</p>
           </div>
         </div>
 
         <!-- Link para matéria original -->
-        <div v-if="article.url" class="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+        <div v-if="article.url" class="mt-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Matéria Original</h3>
-              <p class="text-sm text-gray-600 mb-3">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Matéria Original</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
                 Esta notícia foi extraída da fonte original. Para ler a matéria completa no site original, clique no link abaixo.
               </p>
             </div>
@@ -145,7 +185,7 @@
         </div>
 
         <!-- Article Footer -->
-        <footer class="mt-12 pt-8 border-t border-gray-200">
+        <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
               <span class="text-sm text-gray-500">Fonte: {{ article.source?.name }}</span>
@@ -178,23 +218,23 @@
 
       <!-- Loading State -->
       <div v-if="!article" class="text-center py-16">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-        <p class="text-gray-600">Carregando notícia...</p>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
+        <p class="text-gray-600 dark:text-gray-400">Carregando notícia...</p>
       </div>
 
       <!-- Error State -->
       <div v-if="error" class="text-center py-16">
         <div class="max-w-md mx-auto">
-          <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
-          <h3 class="text-xl font-bold text-gray-900 mb-2">Erro ao carregar notícia</h3>
-          <p class="text-gray-600 mb-6">
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Erro ao carregar notícia</h3>
+          <p class="text-gray-600 dark:text-gray-400 mb-6">
             {{ error }}
           </p>
           <a 
             href="/news" 
-            class="inline-block px-6 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-colors font-medium"
+            class="inline-block px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium"
           >
             Voltar ao início
           </a>
@@ -205,6 +245,9 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import ThemeToggle from '../../components/ThemeToggle.vue'
+
 const props = defineProps({
   article: {
     type: Object,
@@ -215,6 +258,8 @@ const props = defineProps({
     default: null
   }
 })
+
+const mobileMenuOpen = ref(false)
 
 const formatDate = (dateString) => {
   if (!dateString) return ''
@@ -260,6 +305,10 @@ const formatContent = (content) => {
   color: #374151;
 }
 
+.dark .prose {
+  color: #d1d5db;
+}
+
 .prose p {
   margin-bottom: 1.5rem;
   line-height: 1.75;
@@ -278,6 +327,11 @@ const formatContent = (content) => {
   color: #6b7280;
 }
 
+.dark .prose blockquote {
+  border-left-color: #4b5563;
+  color: #9ca3af;
+}
+
 .prose ul {
   margin: 1.5rem 0;
   padding-left: 1.5rem;
@@ -292,5 +346,9 @@ const formatContent = (content) => {
 .prose br + • {
   margin-left: 1rem;
   color: #6b7280;
+}
+
+.dark .prose br + • {
+  color: #9ca3af;
 }
 </style>

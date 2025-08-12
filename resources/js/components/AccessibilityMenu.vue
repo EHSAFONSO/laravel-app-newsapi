@@ -3,7 +3,7 @@
     <!-- Botão de Acessibilidade -->
     <button 
       @click="toggleMenu"
-      class="fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+      class="fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 hover-scale"
       :aria-expanded="menuOpen"
       aria-label="Menu de Acessibilidade"
     >
@@ -15,7 +15,7 @@
     <!-- Menu de Acessibilidade -->
     <div 
       v-if="menuOpen"
-      class="fixed bottom-20 right-4 z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-64"
+      class="fixed bottom-20 right-4 z-50 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200/50 p-4 min-w-64 fade-in-up"
     >
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Acessibilidade</h3>
       
@@ -38,19 +38,19 @@
         <div class="flex space-x-2">
           <button 
             @click="changeFontSize('small')"
-            class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+            class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
           >
             A-
           </button>
           <button 
             @click="changeFontSize('normal')"
-            class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+            class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
           >
             A
           </button>
           <button 
             @click="changeFontSize('large')"
-            class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+            class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
           >
             A+
           </button>
@@ -99,7 +99,7 @@
       <!-- Reset -->
       <button 
         @click="resetAccessibility"
-        class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm font-medium"
+        class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
       >
         Resetar Configurações
       </button>

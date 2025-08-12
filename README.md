@@ -89,6 +89,15 @@ Um portal de notícias moderno, responsivo e acessível construído com Laravel,
 - **⌨️ Indicadores de Foco**: Navegação por teclado melhorada
 - **💾 Persistência de Configurações**: Preferências salvas no localStorage
 
+### 🌙 **Sistema de Modo Escuro**
+- **🌙/☀️ Toggle de Tema**: Botão para alternar entre modo claro e escuro
+- **🎨 Design System Completo**: Variáveis CSS para temas claro e escuro
+- **💾 Persistência de Tema**: Preferência salva no localStorage
+- **🖥️ Detecção do Sistema**: Respeita a preferência do sistema operacional
+- **🔄 Transições Suaves**: Animações fluidas entre os temas
+- **📱 Responsivo**: Funciona perfeitamente em desktop e mobile
+- **🎯 Glassmorphism**: Efeitos de vidro adaptados para ambos os temas
+
 ### ⚡ **Performance e Otimização**
 - **🚀 Cache Inteligente**: Cache de 5 minutos para consultas frequentes
 - **🛡️ Rate Limiting**: Limite de 10 tentativas por minuto por IP
@@ -106,12 +115,13 @@ Um portal de notícias moderno, responsivo e acessível construído com Laravel,
 
 - **Backend**: Laravel 11
 - **Frontend**: Vue.js 3 + Inertia.js
-- **CSS**: Tailwind CSS 3.4.0
+- **CSS**: Tailwind CSS 3.4.0 (com Dark Mode)
 - **API**: NewsAPI
 - **Banco de Dados**: SQL Server
 - **Build Tool**: Vite
 - **Cache**: Laravel Cache
 - **Performance**: Índices otimizados, cache inteligente
+- **Tema**: Sistema de modo escuro com CSS Variables
 
 ## 📋 Pré-requisitos
 
@@ -198,6 +208,43 @@ npm run build
 ### 10. Inicie o servidor
 
 ```bash
+php artisan serve
+```
+
+### 11. Acesse a aplicação
+
+Abra seu navegador e acesse: `http://localhost:8000`
+
+## 🌙 Como Usar o Modo Escuro
+
+### **Para Usuários**
+1. **Clique no botão de tema** (ícone sol/lua) no header da aplicação
+2. **O tema alterna instantaneamente** entre claro e escuro
+3. **Sua preferência é salva automaticamente** para próximas visitas
+4. **O sistema respeita** a configuração do seu sistema operacional
+
+### **Para Desenvolvedores**
+O sistema de modo escuro está implementado com:
+
+- **Composable `useTheme()`**: Gerencia o estado do tema
+- **Componente `ThemeToggle`**: Botão de alternância com ícones dinâmicos
+- **Variáveis CSS**: `--bg-primary`, `--text-primary`, etc.
+- **Classes Tailwind**: `dark:` para estilos específicos do modo escuro
+- **Inicialização Antecipada**: Evita flash de tema na primeira visita
+
+### **Estrutura dos Arquivos**
+```
+resources/
+├── css/
+│   └── app.css              # Variáveis CSS para temas
+├── js/
+│   ├── composables/
+│   │   └── useTheme.js      # Lógica de gerenciamento do tema
+│   └── components/
+│       └── ThemeToggle.vue  # Componente do botão de tema
+└── views/
+    └── app.blade.php        # Script de inicialização do tema
+```
 php artisan serve
 ```
 
@@ -664,6 +711,15 @@ O sistema exibe alertas quando:
 - ✅ **Persistência** de configurações no localStorage
 - ✅ **Navegação por teclado** melhorada
 
+### Modo Escuro
+- ✅ **Sistema completo** de modo escuro implementado
+- ✅ **Toggle de tema** com ícones sol/lua
+- ✅ **Persistência** de preferência no localStorage
+- ✅ **Detecção automática** da preferência do sistema
+- ✅ **Transições suaves** entre temas
+- ✅ **Design system** com variáveis CSS
+- ✅ **Glassmorphism** adaptado para ambos os temas
+
 ### Mobile/Responsivo
 - ✅ **Menu hambúrguer** para dispositivos móveis
 - ✅ **Breakpoints** responsivos implementados
@@ -696,6 +752,13 @@ O sistema exibe alertas quando:
 - Geração automática de slugs
 - Cálculo de tempo de leitura
 - Otimização para motores de busca
+
+### Fase 5: Melhorias do Modo Escuro
+- Temas personalizados (azul escuro, verde escuro, etc.)
+- Modo automático baseado no horário
+- Animações específicas para cada tema
+- Melhor contraste e legibilidade
+- Suporte a preferências de usuário por página
 
 ## 🤝 Contribuindo
 
@@ -737,6 +800,31 @@ Se você encontrar algum problema ou tiver dúvidas:
 - `GUIA_COMMITS_SEMANTICOS.md` - Guia de commits semânticos
 - `COMMIT_GERAL_RECOMENDADO.md` - Commits recomendados
 
+## 🌙 Commits Recentes - Modo Escuro
+
+### **Commit Principal Recomendado**
+```bash
+feat: implement comprehensive dark mode system
+
+- Add dark mode support with theme toggle button
+- Create useTheme composable for theme management
+- Update all pages with dark mode classes and styles
+- Fix CSS syntax errors and import placement
+- Add theme persistence and system preference detection
+- Implement smooth transitions and glassmorphism effects
+- Ensure responsive design in both light and dark themes
+```
+
+### **Arquivos Modificados**
+- `resources/css/app.css` - Variáveis CSS para temas
+- `resources/js/composables/useTheme.js` - Lógica do tema
+- `resources/js/components/ThemeToggle.vue` - Componente do botão
+- `resources/views/app.blade.php` - Inicialização do tema
+- `tailwind.config.js` - Configuração do dark mode
+- `resources/js/pages/welcome.vue` - Página principal
+- `resources/js/pages/news/index.vue` - Lista de notícias
+- `resources/js/pages/news/show.vue` - Detalhes da notícia
+
 ## 🎉 Agradecimentos
 
 - [Laravel](https://laravel.com/) - Framework PHP
@@ -754,4 +842,4 @@ Se você encontrar algum problema ou tiver dúvidas:
 
 **Portal de Notícias** - Laravel + Vue.js + Inertia.js + SQL Server
 
-**Versão**: 2.0.0 - Com melhorias de acessibilidade, performance e UX
+**Versão**: 2.1.0 - Com sistema de modo escuro, melhorias de acessibilidade, performance e UX

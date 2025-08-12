@@ -3,7 +3,7 @@
     <!-- Botão Voltar para Categoria -->
     <a 
       :href="`/news/category/${category}`"
-      class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium"
+      class="btn-primary hover-scale"
     >
       <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -14,7 +14,7 @@
     <!-- Botão Voltar ao Início -->
     <a 
       href="/news" 
-      class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors font-medium"
+      class="btn-secondary hover-scale"
     >
       Voltar ao início
     </a>

@@ -1,25 +1,37 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Header Moderno com Glassmorphism -->
+    <header class="backdrop-blur-md bg-white/80 dark:bg-gray-900/80 border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
-          <div class="flex items-center space-x-8">
-            <h1 class="text-2xl font-bold text-gray-900">Portal de Notícias</h1>
-            <!-- Desktop Navigation -->
-            <nav class="hidden md:flex space-x-6">
-              <a href="/news" class="text-blue-600 px-3 py-2 text-sm font-medium border-b-2 border-blue-600">
-                Início
-              </a>
-              <a href="/history" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">
-                Histórico
-              </a>
-            </nav>
+          <!-- Logo e Nome -->
+          <div class="flex items-center space-x-4">
+            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              </svg>
+            </div>
+            <h1 class="text-2xl font-bold gradient-text-blue">
+              Portal de Notícias
+            </h1>
           </div>
+          
+          <!-- Desktop Navigation -->
+          <nav class="hidden md:flex space-x-1">
+            <a href="/news" class="relative px-4 py-2 text-sm font-medium text-blue-600 transition-colors group">
+              Início
+              <span class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"></span>
+            </a>
+            <a href="/history" class="relative px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors group">
+              Histórico
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+          </nav>
           
           <!-- Desktop Actions -->
           <div class="hidden md:flex items-center space-x-3">
-            <a href="/" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+            <ThemeToggle />
+            <a href="/" class="btn-secondary hover-scale">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
@@ -31,12 +43,12 @@
           <div class="md:hidden">
             <button 
               @click="mobileMenuOpen = !mobileMenuOpen"
-              class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 focus-ring"
             >
-              <svg class="h-6 w-6" :class="mobileMenuOpen ? 'hidden' : 'block'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
-              <svg class="h-6 w-6" :class="mobileMenuOpen ? 'block' : 'hidden'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -45,16 +57,18 @@
         
         <!-- Mobile Menu -->
         <div class="md:hidden" :class="mobileMenuOpen ? 'block' : 'hidden'">
-          <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
-            <a href="/news" class="text-blue-600 block px-3 py-2 text-base font-medium border-l-4 border-blue-600">
-              Início
-            </a>
-            <a href="/history" class="text-gray-600 hover:text-gray-900 block px-3 py-2 text-base font-medium">
-              Histórico
-            </a>
-            <a href="/" class="text-gray-600 hover:text-gray-900 block px-3 py-2 text-base font-medium">
-              Tela Inicial
-            </a>
+          <div class="py-4 border-t border-gray-200/50">
+            <nav class="flex flex-col space-y-2">
+              <a href="/news" class="text-blue-600 px-3 py-2 text-sm font-medium border-l-4 border-blue-600 bg-blue-50 rounded-r-lg">
+                Início
+              </a>
+              <a href="/history" class="text-gray-600 px-3 py-2 text-sm font-medium hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                Histórico
+              </a>
+              <a href="/" class="text-gray-600 px-3 py-2 text-sm font-medium hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                Tela Inicial
+              </a>
+            </nav>
           </div>
         </div>
       </div>
@@ -77,27 +91,33 @@
         </div>
       </div>
       
-      <!-- Search Bar -->
-      <div class="mb-8">
+      <!-- Search Bar Moderna -->
+      <div class="mb-12 fade-in-up">
         <div class="max-w-2xl mx-auto">
           <form @submit.prevent="searchNews" class="relative">
-            <div class="flex items-center bg-white border border-gray-300 rounded-lg px-4 py-3 hover:border-gray-400 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-colors">
-              <svg class="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl px-6 py-4 shadow-lg hover:shadow-xl transition-all duration-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20">
+              <svg class="w-6 h-6 text-gray-400 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
                 v-model="searchForm.title"
                 type="text"
                 placeholder="Buscar notícias..."
-                class="flex-1 text-base border-none outline-none bg-transparent min-w-0"
+                class="flex-1 text-lg border-none outline-none bg-transparent min-w-0 placeholder-gray-400"
                 required
               >
               <button
                 type="submit"
                 :disabled="searchForm.processing"
-                class="ml-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 font-medium transition-colors text-sm flex-shrink-0"
+                class="ml-4 px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium transition-all duration-200 hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 focus-ring"
               >
-                <span v-if="searchForm.processing">Buscando...</span>
+                <span v-if="searchForm.processing" class="flex items-center">
+                  <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Buscando...
+                </span>
                 <span v-else>Buscar</span>
               </button>
             </div>
@@ -105,34 +125,46 @@
         </div>
         
         <!-- Advanced Filters -->
-        <div class="mt-4 max-w-2xl mx-auto">
-          <div class="flex flex-wrap gap-2 justify-center">
+        <div class="mt-6 max-w-2xl mx-auto fade-in-up" style="animation-delay: 0.2s;">
+          <div class="flex flex-wrap gap-3 justify-center">
             <button 
               @click="toggleFilter('recent')"
-              :class="activeFilters.recent ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-gray-700 border-gray-300'"
-              class="px-3 py-1 text-xs font-medium border rounded-full hover:bg-gray-50 transition-colors"
+              :class="activeFilters.recent ? 'bg-blue-100 text-blue-700 border-blue-300 shadow-md' : 'bg-white/80 backdrop-blur-sm text-gray-700 border-gray-200/50'"
+              class="px-4 py-2 text-sm font-medium border rounded-full hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 hover:scale-105 focus-ring"
             >
+              <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
               Mais Recentes
             </button>
             <button 
               @click="toggleFilter('popular')"
-              :class="activeFilters.popular ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-gray-700 border-gray-300'"
-              class="px-3 py-1 text-xs font-medium border rounded-full hover:bg-gray-50 transition-colors"
+              :class="activeFilters.popular ? 'bg-blue-100 text-blue-700 border-blue-300 shadow-md' : 'bg-white/80 backdrop-blur-sm text-gray-700 border-gray-200/50'"
+              class="px-4 py-2 text-sm font-medium border rounded-full hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 hover:scale-105 focus-ring"
             >
+              <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
               Mais Populares
             </button>
             <button 
               @click="toggleFilter('withImage')"
-              :class="activeFilters.withImage ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-gray-700 border-gray-300'"
-              class="px-3 py-1 text-xs font-medium border rounded-full hover:bg-gray-50 transition-colors"
+              :class="activeFilters.withImage ? 'bg-blue-100 text-blue-700 border-blue-300 shadow-md' : 'bg-white/80 backdrop-blur-sm text-gray-700 border-gray-200/50'"
+              class="px-4 py-2 text-sm font-medium border rounded-full hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 hover:scale-105 focus-ring"
             >
+              <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
               Com Imagem
             </button>
             <button 
               @click="toggleFilter('fromDatabase')"
-              :class="activeFilters.fromDatabase ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-gray-700 border-gray-300'"
-              class="px-3 py-1 text-xs font-medium border rounded-full hover:bg-gray-50 transition-colors"
+              :class="activeFilters.fromDatabase ? 'bg-blue-100 text-blue-700 border-blue-300 shadow-md' : 'bg-white/80 backdrop-blur-sm text-gray-700 border-gray-200/50'"
+              class="px-4 py-2 text-sm font-medium border rounded-full hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 hover:scale-105 focus-ring"
             >
+              <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+              </svg>
               Do Banco
             </button>
           </div>
@@ -140,47 +172,62 @@
       </div>
 
       <!-- Categories -->
-      <div class="mb-8">
-        <div class="flex flex-wrap gap-2">
+      <div class="mb-12 fade-in-up" style="animation-delay: 0.3s;">
+        <div class="flex flex-wrap gap-3">
           <a
             v-for="(label, key) in categories"
             :key="key"
             :href="key === 'general' ? '/news' : `/news/category/${key}`"
-            class="px-4 py-2 bg-white text-gray-700 rounded-md hover:bg-gray-50 border border-gray-200 transition-colors text-sm font-medium"
-            :class="{ 'bg-blue-50 text-blue-700 border-blue-200': currentCategory === key }"
+            class="group px-4 py-2 bg-white/80 backdrop-blur-sm text-gray-700 rounded-lg hover:bg-blue-50 hover:border-blue-200 border border-gray-200/50 transition-all duration-200 text-sm font-medium hover:scale-105 focus-ring"
+            :class="{ 'bg-blue-100 text-blue-700 border-blue-300 shadow-md': currentCategory === key }"
           >
-            {{ label }}
+            <span class="flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              {{ label }}
+            </span>
           </a>
         </div>
       </div>
 
       <!-- News Section -->
       <div v-if="news && news.success && news.articles && news.articles.length > 0" class="mb-8">
-        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd" />
-          </svg>
-          Últimas Notícias
-          <span class="ml-2 text-sm text-gray-500 font-normal">({{ news.totalResults || news.articles.length }} notícias)</span>
+        <h3 class="text-2xl md:text-3xl font-bold text-gray-900 mb-6 flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <span class="gradient-text">Últimas Notícias</span>
+          <span class="ml-3 text-sm text-gray-500 font-normal bg-gray-100 px-3 py-1 rounded-full">({{ news.totalResults || news.articles.length }} notícias)</span>
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 news-grid">
           <article 
             v-for="(article, index) in news.articles" 
             :key="`news-${index}-${article.id || article.url}`"
-            class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+            class="news-card group"
           >
+            <!-- Badge de categoria -->
+            <div class="absolute top-4 left-4 z-10">
+              <span class="badge badge-primary">
+                {{ getCategoryFromTitle(article.title) }}
+              </span>
+            </div>
+            
             <!-- Imagem -->
-            <div class="relative h-48 bg-gray-200">
+            <div class="relative h-48 overflow-hidden">
               <div v-if="article.urlToImage && !imageErrors[`news-${index}`]" class="w-full h-full">
                 <img 
                   :src="article.urlToImage" 
                   :alt="article.title"
-                  class="w-full h-full object-cover"
+                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   @error="handleImageError(`news-${index}`)"
                   @load="handleImageLoad(`news-${index}`)"
                 >
+                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
-              <div v-else class="w-full h-full flex items-center justify-center" :class="getCategoryIconStyle(article.category).bg">
+              <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200" :class="getCategoryIconStyle(article.category).bg">
                 <div class="text-center">
                   <svg class="w-12 h-12 mx-auto mb-2" :class="getCategoryIconStyle(article.category).text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getCategoryIconStyle(article.category).path" />
@@ -193,50 +240,59 @@
             </div>
             
             <!-- Conteúdo -->
-            <div class="p-4">
-              <div class="flex items-center space-x-2 mb-2">
+            <div class="p-6">
+              <div class="flex items-center gap-2 mb-3">
                 <span class="text-xs text-gray-500 font-medium">{{ article.source?.name || 'Fonte' }}</span>
                 <span class="text-gray-300">•</span>
                 <span class="text-xs text-gray-500">{{ formatDate(article.publishedAt) }}</span>
-                <span v-if="article.fromDatabase" class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">DB</span>
+                <span v-if="article.fromDatabase" class="badge badge-success text-xs">DB</span>
               </div>
-              <h4 class="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 leading-tight">
-                <a :href="`/news/${article.id}`" class="hover:text-blue-600 transition-colors">
+              <h4 class="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors mb-3">
+                <a :href="`/news/${article.id}`" class="text-inherit no-underline">
                   {{ article.title }}
                 </a>
               </h4>
-              <p class="text-xs text-gray-600 line-clamp-2 mb-3">
+              <p class="text-sm text-gray-600 line-clamp-3 mb-4">
                 {{ article.description || 'Descrição não disponível' }}
               </p>
               <a 
                 :href="`/news/${article.id}`"
-                class="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                class="inline-flex items-center text-sm text-blue-600 font-medium hover:text-blue-700 transition-colors"
               >
-                Ler mais →
+                Ler mais
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
               </a>
             </div>
           </article>
         </div>
 
         <!-- Pagination -->
-        <div v-if="news.totalPages > 1" class="mt-8 flex justify-center">
-          <nav class="flex items-center space-x-2">
+        <div v-if="news.totalPages > 1" class="mt-12 flex justify-center fade-in-up" style="animation-delay: 0.4s;">
+          <nav class="flex items-center space-x-3">
             <a 
               v-if="news.currentPage > 1"
               :href="`/news?page=${news.currentPage - 1}`"
-              class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              class="btn-secondary hover-scale"
             >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
               Anterior
             </a>
-            <span class="px-3 py-2 text-sm text-gray-700">
+            <span class="px-4 py-2 text-sm text-gray-700 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-lg">
               Página {{ news.currentPage }} de {{ news.totalPages }}
             </span>
             <a 
               v-if="news.currentPage < news.totalPages"
               :href="`/news?page=${news.currentPage + 1}`"
-              class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              class="btn-secondary hover-scale"
             >
               Próxima
+              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
             </a>
           </nav>
         </div>
@@ -270,6 +326,7 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3'
 import { ref, reactive, onMounted } from 'vue'
+import ThemeToggle from '../../components/ThemeToggle.vue'
 
 const props = defineProps({
   news: {

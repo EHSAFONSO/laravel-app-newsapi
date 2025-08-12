@@ -1,31 +1,43 @@
 <template>
-  <div style="min-height: 100vh; background-color: #f8fafc;">
-    <!-- Header Google News Style -->
-    <header style="background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 50;">
-      <div style="max-width: 80rem; margin: 0 auto; padding: 0 1rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0;">
-          <div style="display: flex; align-items: center; gap: 2rem;">
-            <h1 style="font-size: 1.5rem; font-weight: bold; color: #1e293b; margin: 0;">Portal de Notícias</h1>
-            
-            <!-- Desktop Navigation -->
-            <nav style="display: flex; gap: 1.5rem;" class="hidden md:flex">
-              <a href="/" style="color: #2563eb; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-bottom: 2px solid #2563eb; text-decoration: none;">
-                Início
-              </a>
-              <a href="/news" style="color: #64748b; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">
-                Notícias
-              </a>
-              <a href="/history" style="color: #64748b; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#64748b'">
-                Histórico
-              </a>
-            </nav>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Header Moderno com Glassmorphism -->
+    <header class="backdrop-blur-md bg-white/80 dark:bg-gray-900/80 border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <!-- Logo e Nome -->
+          <div class="flex items-center space-x-4">
+            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              </svg>
+            </div>
+            <h1 class="text-2xl font-bold gradient-text-blue">
+              Portal de Notícias
+            </h1>
           </div>
+          
+          <!-- Desktop Navigation -->
+          <nav class="hidden md:flex space-x-1">
+            <a href="/" class="relative px-4 py-2 text-sm font-medium text-blue-600 transition-colors group">
+              Início
+              <span class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"></span>
+            </a>
+            <a href="/news" class="relative px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors group">
+              Notícias
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="/history" class="relative px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors group">
+              Histórico
+              <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+          </nav>
           
           <!-- Desktop Actions -->
           <div class="hidden md:flex items-center space-x-3">
+            <ThemeToggle />
             <button 
               @click="toggleAccessibility"
-              class="p-2 text-gray-600 hover:text-gray-900 transition-colors"
+              class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200 focus-ring"
               title="Menu de Acessibilidade"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,7 +48,7 @@
           
           <!-- Mobile Menu Button -->
           <div class="md:hidden">
-            <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 focus-ring">
               <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
@@ -49,22 +61,26 @@
         
         <!-- Mobile Menu -->
         <div class="md:hidden" :class="mobileMenuOpen ? 'block' : 'hidden'">
-          <div class="py-4 border-t border-gray-200">
+          <div class="py-4 border-t border-gray-200/50">
             <nav class="flex flex-col space-y-2">
-              <a href="/" class="text-blue-600 px-3 py-2 text-sm font-medium border-l-4 border-blue-600">
+              <a href="/" class="text-blue-600 px-3 py-2 text-sm font-medium border-l-4 border-blue-600 bg-blue-50 rounded-r-lg">
                 Início
               </a>
-              <a href="/news" class="text-gray-600 px-3 py-2 text-sm font-medium hover:text-gray-900">
+              <a href="/news" class="text-gray-600 px-3 py-2 text-sm font-medium hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                 Notícias
               </a>
-              <a href="/history" class="text-gray-600 px-3 py-2 text-sm font-medium hover:text-gray-900">
+              <a href="/history" class="text-gray-600 px-3 py-2 text-sm font-medium hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                 Histórico
               </a>
             </nav>
-            <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="mt-4 pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+              <div class="flex items-center justify-between px-3 py-2">
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Tema</span>
+                <ThemeToggle />
+              </div>
               <button 
                 @click="toggleAccessibility"
-                class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+                class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg transition-colors w-full mt-2"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -80,44 +96,60 @@
     <!-- Main Content -->
     <main style="max-width: 80rem; margin: 0 auto; padding: 1.5rem 1rem;">
       
-      <!-- Hero Section -->
-      <div style="text-align: center; margin-bottom: 3rem;">
-        <h2 style="font-size: 3rem; font-weight: bold; color: #1e293b; margin-bottom: 1rem;">Bem-vindo ao Portal de Notícias</h2>
-        <p style="font-size: 1.25rem; color: #64748b; margin-bottom: 2rem; max-width: 48rem; margin-left: auto; margin-right: auto;">
-          Descubra as últimas notícias do Brasil e do mundo. Mantenha-se informado com conteúdo de qualidade e fontes confiáveis.
-        </p>
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-          <a href="/news" style="display: inline-block; padding: 0.75rem 1.5rem; background: #2563eb; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 500; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#1d4ed8'" onmouseout="this.style.backgroundColor='#2563eb'">
-            Ver Notícias
-          </a>
-          <a href="/history" style="display: inline-block; padding: 0.75rem 1.5rem; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 0.5rem; text-decoration: none; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#f9fafb'" onmouseout="this.style.backgroundColor='white'">
-            Histórico de Buscas
-          </a>
+      <!-- Hero Section Moderna -->
+      <div class="text-center mb-16 fade-in-up">
+        <div class="max-w-4xl mx-auto">
+          <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+            Bem-vindo ao 
+            <span class="gradient-text">Portal de Notícias</span>
+          </h2>
+          <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+            Descubra as últimas notícias do Brasil e do mundo. Mantenha-se informado com conteúdo de qualidade e fontes confiáveis.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a href="/news" class="btn-primary hover-scale">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              </svg>
+              Ver Notícias
+            </a>
+            <a href="/history" class="btn-secondary hover-scale">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Histórico de Buscas
+            </a>
+          </div>
         </div>
       </div>
 
-      <!-- Search Bar Google News Style -->
-      <div style="margin-bottom: 2rem;">
-        <div style="max-width: 32rem; margin: 0 auto;">
-          <form @submit.prevent="searchNews" style="position: relative;">
-            <div style="display: flex; align-items: center; background: white; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.75rem 1rem; transition: all 0.2s;" onmouseover="this.style.borderColor='#9ca3af'" onmouseout="this.style.borderColor='#d1d5db'">
-              <svg style="width: 1.25rem; height: 1.25rem; color: #9ca3af; margin-right: 0.75rem; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Search Bar Moderna -->
+      <div class="mb-12 fade-in-up" style="animation-delay: 0.2s;">
+        <div class="max-w-2xl mx-auto">
+          <form @submit.prevent="searchNews" class="relative">
+            <div class="flex items-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-xl px-6 py-4 shadow-lg hover:shadow-xl transition-all duration-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20">
+              <svg class="w-6 h-6 text-gray-400 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
                 v-model="searchForm.title"
                 type="text"
                 placeholder="Buscar notícias..."
-                style="flex: 1; font-size: 1rem; border: none; outline: none; background: transparent; min-width: 0;"
+                class="flex-1 text-lg border-none outline-none bg-transparent min-w-0 placeholder-gray-400 dark:text-white dark:placeholder-gray-500"
                 required
               >
               <button
                 type="submit"
                 :disabled="searchForm.processing"
-                style="margin-left: 0.75rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border-radius: 0.375rem; border: none; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: background-color 0.2s; flex-shrink: 0;"
-                onmouseover="this.style.backgroundColor='#1d4ed8'" onmouseout="this.style.backgroundColor='#2563eb'"
+                class="ml-4 px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium transition-all duration-200 hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 focus-ring"
               >
-                <span v-if="searchForm.processing">Buscando...</span>
+                <span v-if="searchForm.processing" class="flex items-center">
+                  <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Buscando...
+                </span>
                 <span v-else>Buscar</span>
               </button>
             </div>
@@ -125,75 +157,86 @@
         </div>
       </div>
 
-      <!-- Categories Google News Style -->
-      <div style="margin-bottom: 2rem;">
-        <h3 style="font-size: 1.25rem; font-weight: bold; color: #1e293b; margin-bottom: 1rem;">Categorias</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+      <!-- Categories Section -->
+      <div class="mb-16 fade-in-up" style="animation-delay: 0.3s;">
+        <h3 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+          Explore por <span class="gradient-text">Categoria</span>
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <a
             v-for="(label, key) in categories"
             :key="key"
             :href="key === 'general' ? '/news' : `/news/category/${key}`"
-            style="padding: 0.5rem 1rem; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: all 0.2s;"
-            onmouseover="this.style.backgroundColor='#f9fafb'" onmouseout="this.style.backgroundColor='white'"
+            class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-xl p-4 text-center hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-400 transition-all duration-300 hover:scale-105"
           >
-            {{ label }}
+            <div class="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center group-hover:from-blue-600 group-hover:to-purple-700 transition-all duration-300">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              </svg>
+            </div>
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ label }}</span>
           </a>
         </div>
       </div>
 
       <!-- Featured News Section -->
-      <div style="margin-bottom: 3rem;">
-        <h3 style="font-size: 1.5rem; font-weight: bold; color: #1e293b; margin-bottom: 1.5rem; display: flex; align-items: center;">
-          <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem; color: #dc2626; flex-shrink: 0;" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd" />
-          </svg>
-          Destaques
+      <div class="mb-16 fade-in-up" style="animation-delay: 0.4s;">
+        <h3 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+          <span class="gradient-text">Destaques</span> do Dia
         </h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 news-grid">
           <article 
             v-for="(article, index) in featuredNews" 
             :key="`featured-${index}`"
-            style="background: white; border-radius: 0.5rem; border: 1px solid #e2e8f0; overflow: hidden; transition: box-shadow 0.2s;"
-            onmouseover="this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'" onmouseout="this.style.boxShadow='none'"
+            class="news-card group"
           >
-            <!-- Imagem com Placeholder Estético -->
-            <div style="position: relative; height: 12rem; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+            <!-- Badge de categoria -->
+            <div class="absolute top-4 left-4 z-10">
+              <span class="badge badge-primary">
+                {{ article.category || getCategoryFromTitle(article.title) }}
+              </span>
+            </div>
+            
+            <!-- Imagem com overlay -->
+            <div class="relative h-48 overflow-hidden">
               <img 
                 v-if="article.image" 
                 :src="article.image" 
                 :alt="article.title"
                 :data-image-key="`featured-${index}`"
-                style="width: 100%; height: 100%; object-fit: cover;"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 @error="handleImageError"
               >
-              <div v-if="!article.image || imageErrors[`featured-${index}`]" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;" :style="getPlaceholderStyle(article)">
-                <div style="text-center text-white font-semibold text-lg px-4">
+              <div v-if="!article.image || imageErrors[`featured-${index}`]" class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent flex items-center justify-center" :style="getPlaceholderStyle(article)">
+                <div class="text-center text-white font-semibold text-lg px-4">
                   {{ article.category || getCategoryFromTitle(article.title) }}
                 </div>
               </div>
             </div>
             
             <!-- Conteúdo -->
-            <div style="padding: 1rem;">
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                <span style="font-size: 0.75rem; color: #6b7280; font-weight: 500;">{{ article.source }}</span>
-                <span style="color: #d1d5db;">•</span>
-                <span style="font-size: 0.75rem; color: #6b7280;">{{ article.date }}</span>
+            <div class="p-6">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-xs text-gray-500 font-medium">{{ article.source }}</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-xs text-gray-500">{{ article.date }}</span>
               </div>
-              <h4 style="font-size: 0.875rem; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                <a :href="`/news/${article.id}`" style="color: inherit; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#1e293b'">
+              <h4 class="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors mb-3">
+                <a :href="`/news/${article.id}`" class="text-inherit no-underline">
                   {{ article.title }}
                 </a>
               </h4>
-              <p style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.75rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+              <p class="text-sm text-gray-600 line-clamp-3 mb-4">
                 {{ article.description }}
               </p>
               <a 
                 :href="`/news/${article.id}`"
-                style="font-size: 0.75rem; color: #2563eb; font-weight: 500; text-decoration: none; transition: color 0.2s;"
-                onmouseover="this.style.color='#1d4ed8'" onmouseout="this.style.color='#2563eb'"
+                class="inline-flex items-center text-sm text-blue-600 font-medium hover:text-blue-700 transition-colors"
               >
-                Ler mais →
+                Ler mais
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
               </a>
             </div>
           </article>
@@ -201,20 +244,39 @@
       </div>
 
       <!-- Quick Stats -->
-      <div style="background: white; border-radius: 0.5rem; border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 2rem;">
-        <h3 style="font-size: 1.25rem; font-weight: bold; color: #1e293b; margin-bottom: 1rem;">Estatísticas Rápidas</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-          <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 0.375rem;">
-            <div style="font-size: 2rem; font-weight: bold; color: #2563eb; margin-bottom: 0.5rem;">7</div>
-            <div style="font-size: 0.875rem; color: #64748b;">Categorias</div>
-          </div>
-          <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 0.375rem;">
-            <div style="font-size: 2rem; font-weight: bold; color: #10b981; margin-bottom: 0.5rem;">24</div>
-            <div style="font-size: 0.875rem; color: #64748b;">Notícias por Página</div>
-          </div>
-          <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 0.375rem;">
-            <div style="font-size: 2rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.5rem;">∞</div>
-            <div style="font-size: 0.875rem; color: #64748b;">Fontes Confiáveis</div>
+      <div class="mb-16 fade-in-up" style="animation-delay: 0.5s;">
+        <div class="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-8 shadow-lg">
+          <h3 class="text-2xl md:text-3xl font-bold text-gray-900 mb-8 text-center">
+            <span class="gradient-text">Estatísticas</span> da Plataforma
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center group">
+              <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </div>
+              <div class="text-3xl md:text-4xl font-bold text-blue-600 mb-2">7</div>
+              <div class="text-sm text-gray-600 font-medium">Categorias</div>
+            </div>
+            <div class="text-center group">
+              <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div class="text-3xl md:text-4xl font-bold text-green-600 mb-2">24</div>
+              <div class="text-sm text-gray-600 font-medium">Notícias por Página</div>
+            </div>
+            <div class="text-center group">
+              <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div class="text-3xl md:text-4xl font-bold text-purple-600 mb-2">∞</div>
+              <div class="text-sm text-gray-600 font-medium">Fontes Confiáveis</div>
+            </div>
           </div>
         </div>
       </div>
@@ -272,6 +334,7 @@
 import { useForm } from '@inertiajs/vue3'
 import { ref, computed, reactive } from 'vue'
 import AccessibilityMenu from '../components/AccessibilityMenu.vue'
+import ThemeToggle from '../components/ThemeToggle.vue'
 
 const searchForm = useForm({
   title: ''
