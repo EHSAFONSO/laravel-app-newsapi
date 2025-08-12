@@ -6,7 +6,8 @@
         <div class="flex justify-between items-center py-4">
           <div class="flex items-center space-x-8">
             <h1 class="text-2xl font-bold text-gray-900">Portal de Notícias</h1>
-            <nav class="flex space-x-6">
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex space-x-6">
               <a href="/news" class="text-blue-600 px-3 py-2 text-sm font-medium border-b-2 border-blue-600">
                 Início
               </a>
@@ -15,12 +16,46 @@
               </a>
             </nav>
           </div>
-          <a href="/history" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Histórico
-          </a>
+          
+          <!-- Desktop Actions -->
+          <div class="hidden md:flex items-center space-x-3">
+            <a href="/" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              Tela Inicial
+            </a>
+          </div>
+          
+          <!-- Mobile Menu Button -->
+          <div class="md:hidden">
+            <button 
+              @click="mobileMenuOpen = !mobileMenuOpen"
+              class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+            >
+              <svg class="h-6 w-6" :class="mobileMenuOpen ? 'hidden' : 'block'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <svg class="h-6 w-6" :class="mobileMenuOpen ? 'block' : 'hidden'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="md:hidden" :class="mobileMenuOpen ? 'block' : 'hidden'">
+          <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
+            <a href="/news" class="text-blue-600 block px-3 py-2 text-base font-medium border-l-4 border-blue-600">
+              Início
+            </a>
+            <a href="/history" class="text-gray-600 hover:text-gray-900 block px-3 py-2 text-base font-medium">
+              Histórico
+            </a>
+            <a href="/" class="text-gray-600 hover:text-gray-900 block px-3 py-2 text-base font-medium">
+              Tela Inicial
+            </a>
+          </div>
         </div>
       </div>
     </header>
@@ -29,14 +64,14 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       
       <!-- API Error Message -->
-      <div v-if="apiError" class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+      <div v-if="news && news.error" class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
         <div class="flex items-center">
           <svg class="w-5 h-5 text-yellow-400 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
           </svg>
           <div>
             <h3 class="text-sm font-medium text-yellow-800">Limite da API Excedido</h3>
-            <p class="text-sm text-yellow-700 mt-1">{{ apiError }}</p>
+            <p class="text-sm text-yellow-700 mt-1">{{ news.error }}</p>
             <p class="text-xs text-yellow-600 mt-2">Os dados exibidos são de exemplo. Aguarde algumas horas para o reset do limite.</p>
           </div>
         </div>
@@ -68,6 +103,40 @@
             </div>
           </form>
         </div>
+        
+        <!-- Advanced Filters -->
+        <div class="mt-4 max-w-2xl mx-auto">
+          <div class="flex flex-wrap gap-2 justify-center">
+            <button 
+              @click="toggleFilter('recent')"
+              :class="activeFilters.recent ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-gray-700 border-gray-300'"
+              class="px-3 py-1 text-xs font-medium border rounded-full hover:bg-gray-50 transition-colors"
+            >
+              Mais Recentes
+            </button>
+            <button 
+              @click="toggleFilter('popular')"
+              :class="activeFilters.popular ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-gray-700 border-gray-300'"
+              class="px-3 py-1 text-xs font-medium border rounded-full hover:bg-gray-50 transition-colors"
+            >
+              Mais Populares
+            </button>
+            <button 
+              @click="toggleFilter('withImage')"
+              :class="activeFilters.withImage ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-gray-700 border-gray-300'"
+              class="px-3 py-1 text-xs font-medium border rounded-full hover:bg-gray-50 transition-colors"
+            >
+              Com Imagem
+            </button>
+            <button 
+              @click="toggleFilter('fromDatabase')"
+              :class="activeFilters.fromDatabase ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-gray-700 border-gray-300'"
+              class="px-3 py-1 text-xs font-medium border rounded-full hover:bg-gray-50 transition-colors"
+            >
+              Do Banco
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Categories -->
@@ -76,7 +145,7 @@
           <a
             v-for="(label, key) in categories"
             :key="key"
-            :href="`/news/category/${key}`"
+            :href="key === 'general' ? '/news' : `/news/category/${key}`"
             class="px-4 py-2 bg-white text-gray-700 rounded-md hover:bg-gray-50 border border-gray-200 transition-colors text-sm font-medium"
             :class="{ 'bg-blue-50 text-blue-700 border-blue-200': currentCategory === key }"
           >
@@ -85,96 +154,40 @@
         </div>
       </div>
 
-      <!-- Top Stories Section -->
-      <div v-if="headlines && headlines.success && headlines.articles && headlines.articles.length > 0" class="mb-8">
-        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd" />
-          </svg>
-          Principais Notícias
-          <span class="ml-2 text-sm text-gray-500 font-normal">({{ headlines.totalResults || headlines.articles.length }} notícias)</span>
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                     <article 
-             v-for="(article, index) in headlines.articles.slice(0, 10)" 
-             :key="`headline-${index}-${article.url}`"
-             class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-           >
-            <!-- Imagem -->
-            <div class="relative h-48 bg-gray-200">
-              <div v-if="article.urlToImage && !imageErrors[`headline-${index}`]" class="w-full h-full">
-                <img 
-                  :src="article.urlToImage" 
-                  :alt="article.title"
-                  class="w-full h-full object-cover"
-                  @error="handleImageError(`headline-${index}`)"
-                  @load="handleImageLoad(`headline-${index}`)"
-                >
-              </div>
-              <div v-else class="w-full h-full flex items-center justify-center" :style="getPlaceholderStyle(article)">
-                <div class="text-center text-white font-semibold text-lg px-4">
-                  {{ getCategoryFromTitle(article.title) }}
-                </div>
-              </div>
-            </div>
-            
-            <!-- Conteúdo -->
-            <div class="p-4">
-              <div class="flex items-center space-x-2 mb-2">
-                <span class="text-xs text-gray-500 font-medium">{{ article.source?.name || 'Fonte' }}</span>
-                <span class="text-gray-300">•</span>
-                <span class="text-xs text-gray-500">{{ formatDate(article.publishedAt) }}</span>
-              </div>
-              <h4 class="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 leading-tight">
-                <a :href="article.url" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors">
-                  {{ article.title }}
-                </a>
-              </h4>
-              <p class="text-xs text-gray-600 line-clamp-2 mb-3">
-                {{ article.description || 'Descrição não disponível' }}
-              </p>
-              <a 
-                :href="article.url" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                class="text-xs text-blue-600 hover:text-blue-800 font-medium"
-              >
-                Ler mais →
-              </a>
-            </div>
-          </article>
-        </div>
-      </div>
-
-      <!-- Category News Section -->
-      <div v-if="categoryNews && categoryNews.success && categoryNews.articles && categoryNews.articles.length > 0" class="mb-8">
+      <!-- News Section -->
+      <div v-if="news && news.success && news.articles && news.articles.length > 0" class="mb-8">
         <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
           <svg class="w-5 h-5 mr-2 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd" />
           </svg>
-          {{ categories[currentCategory] || 'Notícias' }}
-          <span class="ml-2 text-sm text-gray-500 font-normal">({{ categoryNews.totalResults || categoryNews.articles.length }} notícias)</span>
+          Últimas Notícias
+          <span class="ml-2 text-sm text-gray-500 font-normal">({{ news.totalResults || news.articles.length }} notícias)</span>
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <article 
-            v-for="(article, index) in categoryNews.articles" 
-            :key="`category-${index}-${article.url}`"
+            v-for="(article, index) in news.articles" 
+            :key="`news-${index}-${article.id || article.url}`"
             class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
           >
             <!-- Imagem -->
             <div class="relative h-48 bg-gray-200">
-              <div v-if="article.urlToImage && !imageErrors[`category-${index}`]" class="w-full h-full">
+              <div v-if="article.urlToImage && !imageErrors[`news-${index}`]" class="w-full h-full">
                 <img 
                   :src="article.urlToImage" 
                   :alt="article.title"
                   class="w-full h-full object-cover"
-                  @error="handleImageError(`category-${index}`)"
-                  @load="handleImageLoad(`category-${index}`)"
+                  @error="handleImageError(`news-${index}`)"
+                  @load="handleImageLoad(`news-${index}`)"
                 >
               </div>
-              <div v-else class="w-full h-full flex items-center justify-center" :style="getPlaceholderStyle(article)">
-                <div class="text-center text-white font-semibold text-lg px-4">
-                  {{ getCategoryFromTitle(article.title) }}
+              <div v-else class="w-full h-full flex items-center justify-center" :class="getCategoryIconStyle(article.category).bg">
+                <div class="text-center">
+                  <svg class="w-12 h-12 mx-auto mb-2" :class="getCategoryIconStyle(article.category).text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getCategoryIconStyle(article.category).path" />
+                  </svg>
+                  <div class="text-sm font-semibold" :class="getCategoryIconStyle(article.category).text">
+                    {{ getCategoryFromTitle(article.title) }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -185,9 +198,10 @@
                 <span class="text-xs text-gray-500 font-medium">{{ article.source?.name || 'Fonte' }}</span>
                 <span class="text-gray-300">•</span>
                 <span class="text-xs text-gray-500">{{ formatDate(article.publishedAt) }}</span>
+                <span v-if="article.fromDatabase" class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">DB</span>
               </div>
               <h4 class="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 leading-tight">
-                <a :href="article.url" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors">
+                <a :href="`/news/${article.id}`" class="hover:text-blue-600 transition-colors">
                   {{ article.title }}
                 </a>
               </h4>
@@ -195,9 +209,7 @@
                 {{ article.description || 'Descrição não disponível' }}
               </p>
               <a 
-                :href="article.url" 
-                target="_blank" 
-                rel="noopener noreferrer"
+                :href="`/news/${article.id}`"
                 class="text-xs text-blue-600 hover:text-blue-800 font-medium"
               >
                 Ler mais →
@@ -205,31 +217,50 @@
             </div>
           </article>
         </div>
+
+        <!-- Pagination -->
+        <div v-if="news.totalPages > 1" class="mt-8 flex justify-center">
+          <nav class="flex items-center space-x-2">
+            <a 
+              v-if="news.currentPage > 1"
+              :href="`/news?page=${news.currentPage - 1}`"
+              class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              Anterior
+            </a>
+            <span class="px-3 py-2 text-sm text-gray-700">
+              Página {{ news.currentPage }} de {{ news.totalPages }}
+            </span>
+            <a 
+              v-if="news.currentPage < news.totalPages"
+              :href="`/news?page=${news.currentPage + 1}`"
+              class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              Próxima
+            </a>
+          </nav>
+        </div>
       </div>
 
       <!-- Loading State -->
-      <div v-if="!headlines && !categoryNews" class="text-center py-16">
+      <div v-else-if="!news || !news.success" class="text-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <p class="text-gray-600">Carregando notícias...</p>
       </div>
 
-      <!-- No Results Message -->
-      <div v-if="(headlines && headlines.success && (!headlines.articles || headlines.articles.length === 0)) || (categoryNews && categoryNews.success && (!categoryNews.articles || categoryNews.articles.length === 0))" class="text-center py-16">
-        <div class="max-w-md mx-auto">
-          <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <h3 class="text-xl font-bold text-gray-900 mb-2">Nenhuma notícia encontrada</h3>
-          <p class="text-gray-600 mb-6">
-            Tente buscar por outros termos ou verificar outras categorias.
-          </p>
-        </div>
+      <!-- Empty State -->
+      <div v-else class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhuma notícia encontrada</h3>
+        <p class="text-gray-600">Tente buscar por um termo diferente ou verifique as categorias acima.</p>
       </div>
 
       <!-- Error Message -->
-      <div v-if="(headlines && headlines.error) || (categoryNews && categoryNews.error)" class="bg-red-50 border border-red-200 rounded-lg p-6">
+      <div v-if="news && news.error" class="bg-red-50 border border-red-200 rounded-lg p-6">
         <p class="text-red-700">
-          {{ (headlines && headlines.error) || (categoryNews && categoryNews.error) }}
+          {{ news.error }}
         </p>
       </div>
     </main>
@@ -238,14 +269,10 @@
 
 <script setup>
 import { useForm } from '@inertiajs/vue3'
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 
 const props = defineProps({
-  headlines: {
-    type: Object,
-    default: () => ({})
-  },
-  categoryNews: {
+  news: {
     type: Object,
     default: () => ({})
   },
@@ -259,12 +286,25 @@ const props = defineProps({
   },
   categories: {
     type: Object,
-    default: () => ({})
-  },
-  apiError: {
-    type: String,
-    default: null
+    default: () => ({
+      'general': 'Geral',
+      'business': 'Negócios',
+      'technology': 'Tecnologia',
+      'sports': 'Esportes',
+      'entertainment': 'Entretenimento',
+      'health': 'Saúde',
+      'science': 'Ciência'
+    })
   }
+})
+
+// Debug: Log props on mount
+onMounted(() => {
+  console.log('News Index Component Mounted')
+  console.log('Props received:', props)
+  console.log('News data:', props.news)
+  console.log('News success:', props.news?.success)
+  console.log('News articles count:', props.news?.articles?.length)
 })
 
 const searchForm = useForm({
@@ -272,10 +312,23 @@ const searchForm = useForm({
 })
 
 const imageErrors = reactive({})
+const mobileMenuOpen = ref(false)
+const activeFilters = reactive({
+  recent: false,
+  popular: false,
+  withImage: false,
+  fromDatabase: false
+})
 
 const searchNews = () => {
   if (!searchForm.title.trim()) return
   window.location.href = `/news/search?title=${encodeURIComponent(searchForm.title)}`
+}
+
+const toggleFilter = (filter) => {
+  activeFilters[filter] = !activeFilters[filter]
+  // Aqui você pode implementar a lógica de filtro
+  console.log('Filtro ativado:', filter, activeFilters[filter])
 }
 
 const formatDate = (dateString) => {
@@ -336,23 +389,46 @@ const getCategoryFromTitle = (title) => {
   return 'Notícia'
 }
 
-const getPlaceholderStyle = (article) => {
-  const category = getCategoryFromTitle(article.title)
-  
-  const gradients = {
-    'Tecnologia': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    'Economia': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    'Saúde': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    'Esporte': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-    'Política': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    'Entretenimento': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-    'Ciência': 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-    'Notícia': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+const getCategoryIconStyle = (category) => {
+  const styles = {
+    'business': {
+      bg: 'bg-green-100',
+      text: 'text-green-600',
+      path: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+    },
+    'technology': {
+      bg: 'bg-blue-100',
+      text: 'text-blue-600',
+      path: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'
+    },
+    'sports': {
+      bg: 'bg-orange-100',
+      text: 'text-orange-600',
+      path: 'M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2m-6 0h6m-6 0a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V6a2 2 0 00-2-2M9 12l2 2 4-4'
+    },
+    'entertainment': {
+      bg: 'bg-purple-100',
+      text: 'text-purple-600',
+      path: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'
+    },
+    'health': {
+      bg: 'bg-red-100',
+      text: 'text-red-600',
+      path: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
+    },
+    'science': {
+      bg: 'bg-indigo-100',
+      text: 'text-indigo-600',
+      path: 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z'
+    },
+    'general': {
+      bg: 'bg-gray-100',
+      text: 'text-gray-600',
+      path: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z'
+    }
   }
   
-  return {
-    background: gradients[category] || gradients['Notícia']
-  }
+  return styles[category] || styles['general']
 }
 </script>
 

@@ -76,6 +76,7 @@ Um portal de notícias moderno e responsivo construído com Laravel, Vue.js e In
 - **🎨 Design Moderno**: Interface inspirada no Google News com placeholders estéticos
 - **⚠️ Sistema de Fallback**: Dados de exemplo quando a API está indisponível
 - **📊 Monitoramento**: Logs detalhados e alertas visuais
+- **⏰ Agendamento Automático**: Busca de notícias uma vez por dia automaticamente
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -176,6 +177,78 @@ php artisan serve
 ```
 
 A aplicação estará disponível em: `http://127.0.0.1:8000`
+
+## ⏰ Configuração do Agendamento de Notícias
+
+O sistema está configurado para buscar notícias automaticamente uma vez por dia às 8:00 da manhã.
+
+### Comandos Disponíveis
+
+```bash
+# Testar a API de notícias
+php artisan news:test-fetch
+
+# Executar busca manual de notícias
+php artisan news:fetch-daily
+
+# Listar notícias salvas no banco
+php artisan news:list --limit=10
+
+# Verificar tarefas agendadas
+php artisan schedule:list
+```
+
+### Configuração Automática (Windows)
+
+Execute o script de configuração:
+
+```bash
+setup-windows-scheduler.bat
+```
+
+### Configuração Manual (Windows)
+
+1. Abra o "Agendador de Tarefas" do Windows
+2. Clique em "Criar Tarefa Básica"
+3. Configure:
+   - **Nome**: Laravel News Scheduler
+   - **Gatilho**: Diariamente às 8:00
+   - **Ação**: Iniciar um programa
+   - **Programa**: `php`
+   - **Argumentos**: `artisan schedule:run`
+   - **Iniciar em**: `C:\caminho\para\laravel-app`
+
+### Configuração (Linux/Mac)
+
+Adicione ao crontab:
+
+```bash
+crontab -e
+
+# Adicione esta linha:
+* * * * * cd /caminho/para/laravel-app && php artisan schedule:run >> /dev/null 2>&1
+```
+
+### O que o Agendamento Faz
+
+1. **Busca notícias em destaque** do Brasil (20 artigos)
+2. **Busca por categorias**: tecnologia, negócios, esportes, entretenimento (10 artigos cada)
+3. **Salva no banco de dados** na tabela `news`
+4. **Evita duplicatas** verificando títulos existentes
+5. **Registra logs** de todas as operações
+
+### Personalização
+
+Para alterar o horário, edite `app/Console/Kernel.php`:
+
+```php
+$schedule->command('news:fetch-daily')
+        ->dailyAt('06:00') // Alterar para 6:00
+        ->withoutOverlapping()
+        ->runInBackground();
+```
+
+Para mais detalhes, consulte o arquivo `SCHEDULER_README.md`.
 
 ## 📁 Estrutura do Projeto
 
@@ -358,6 +431,12 @@ php artisan tinker
 
 # Verificar conexão com SQL Server
 php artisan tinker --execute="echo 'DB: ' . config('database.default');"
+
+# Comandos de Notícias
+php artisan news:test-fetch      # Testar API de notícias
+php artisan news:fetch-daily     # Executar busca manual
+php artisan news:list --limit=5  # Listar notícias salvas
+php artisan schedule:list        # Verificar tarefas agendadas
 ```
 
 ## 🌐 Endpoints da API

@@ -15,12 +15,14 @@
               </a>
             </nav>
           </div>
-          <a href="/history" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Histórico
-          </a>
+          <div class="flex items-center space-x-3">
+            <a href="/" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              Tela Inicial
+            </a>
+          </div>
         </div>
       </div>
     </header>
@@ -85,9 +87,14 @@
                   @load="handleImageLoad(`search-${index}`)"
                 >
               </div>
-              <div v-else class="w-full h-full flex items-center justify-center" :style="getPlaceholderStyle(article)">
-                <div class="text-center text-white font-semibold text-lg px-4">
-                  {{ getCategoryFromTitle(article.title) }}
+              <div v-else class="w-full h-full flex items-center justify-center" :class="getCategoryIconStyle(article.category).bg">
+                <div class="text-center">
+                  <svg class="w-12 h-12 mx-auto mb-2" :class="getCategoryIconStyle(article.category).text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getCategoryIconStyle(article.category).path" />
+                  </svg>
+                  <div class="text-sm font-semibold" :class="getCategoryIconStyle(article.category).text">
+                    {{ getCategoryFromTitle(article.title) }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -100,7 +107,7 @@
                 <span class="text-xs text-gray-500">{{ formatDate(article.publishedAt) }}</span>
               </div>
               <h4 class="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 leading-tight">
-                <a :href="article.url" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 transition-colors">
+                <a :href="`/news/${article.id}`" class="hover:text-blue-600 transition-colors">
                   {{ article.title }}
                 </a>
               </h4>
@@ -108,9 +115,7 @@
                 {{ article.description || 'Descrição não disponível' }}
               </p>
               <a 
-                :href="article.url" 
-                target="_blank" 
-                rel="noopener noreferrer"
+                :href="`/news/${article.id}`"
                 class="text-xs text-blue-600 hover:text-blue-800 font-medium"
               >
                 Ler mais →
@@ -235,23 +240,46 @@ const getCategoryFromTitle = (title) => {
   return 'Notícia'
 }
 
-const getPlaceholderStyle = (article) => {
-  const category = getCategoryFromTitle(article.title)
-  
-  const gradients = {
-    'Tecnologia': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    'Economia': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    'Saúde': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    'Esporte': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-    'Política': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    'Entretenimento': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-    'Ciência': 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-    'Notícia': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+const getCategoryIconStyle = (category) => {
+  const styles = {
+    'business': {
+      bg: 'bg-green-100',
+      text: 'text-green-600',
+      path: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+    },
+    'technology': {
+      bg: 'bg-blue-100',
+      text: 'text-blue-600',
+      path: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'
+    },
+    'sports': {
+      bg: 'bg-orange-100',
+      text: 'text-orange-600',
+      path: 'M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2m-6 0h6m-6 0a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V6a2 2 0 00-2-2M9 12l2 2 4-4'
+    },
+    'entertainment': {
+      bg: 'bg-purple-100',
+      text: 'text-purple-600',
+      path: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'
+    },
+    'health': {
+      bg: 'bg-red-100',
+      text: 'text-red-600',
+      path: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
+    },
+    'science': {
+      bg: 'bg-indigo-100',
+      text: 'text-indigo-600',
+      path: 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z'
+    },
+    'general': {
+      bg: 'bg-gray-100',
+      text: 'text-gray-600',
+      path: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z'
+    }
   }
   
-  return {
-    background: gradients[category] || gradients['Notícia']
-  }
+  return styles[category] || styles['general']
 }
 </script>
 

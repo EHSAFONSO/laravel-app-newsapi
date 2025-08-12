@@ -4,24 +4,102 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\HistoryController;
 use Inertia\Inertia;
+use App\Models\News; // Added this import for the new code
 
 Route::get('/', function () {
-    // Buscar dados reais da API para a página inicial
-    $newsApiService = app(\App\Services\NewsApiService::class);
+    // Buscar dados do banco de dados para a página inicial
+    $newsController = app(\App\Http\Controllers\NewsController::class);
     
-    // Buscar notícias de tecnologia, economia e saúde para os destaques
-    $techNews = $newsApiService->getNewsByCategory('technology', 'br', 1, 1);
-    $businessNews = $newsApiService->getNewsByCategory('business', 'br', 1, 1);
-    $healthNews = $newsApiService->getNewsByCategory('health', 'br', 1, 1);
+    // Buscar notícias de tecnologia, economia e saúde do banco de dados
+    $techNews = News::where('category', 'technology')
+        ->orderBy('published_at', 'desc')
+        ->limit(1)
+        ->get()
+        ->map(function ($news) {
+            return [
+                'id' => $news->id,
+                'title' => $news->title,
+                'description' => $news->description,
+                'url' => $news->url,
+                'urlToImage' => $news->url_to_image,
+                'publishedAt' => $news->published_at,
+                'source' => ['name' => $news->source_name],
+                'author' => $news->author,
+                'category' => $news->category
+            ];
+        });
     
-    // Buscar headlines gerais (limite de 10)
-    $headlines = $newsApiService->getTopHeadlines('br', 1, 10);
+    $businessNews = News::where('category', 'business')
+        ->orderBy('published_at', 'desc')
+        ->limit(1)
+        ->get()
+        ->map(function ($news) {
+            return [
+                'id' => $news->id,
+                'title' => $news->title,
+                'description' => $news->description,
+                'url' => $news->url,
+                'urlToImage' => $news->url_to_image,
+                'publishedAt' => $news->published_at,
+                'source' => ['name' => $news->source_name],
+                'author' => $news->author,
+                'category' => $news->category
+            ];
+        });
+    
+    $healthNews = News::where('category', 'health')
+        ->orderBy('published_at', 'desc')
+        ->limit(1)
+        ->get()
+        ->map(function ($news) {
+            return [
+                'id' => $news->id,
+                'title' => $news->title,
+                'description' => $news->description,
+                'url' => $news->url,
+                'urlToImage' => $news->url_to_image,
+                'publishedAt' => $news->published_at,
+                'source' => ['name' => $news->source_name],
+                'author' => $news->author,
+                'category' => $news->category
+            ];
+        });
+    
+    // Buscar headlines gerais do banco de dados
+    $headlines = News::orderBy('published_at', 'desc')
+        ->limit(10)
+        ->get()
+        ->map(function ($news) {
+            return [
+                'id' => $news->id,
+                'title' => $news->title,
+                'description' => $news->description,
+                'url' => $news->url,
+                'urlToImage' => $news->url_to_image,
+                'publishedAt' => $news->published_at,
+                'source' => ['name' => $news->source_name],
+                'author' => $news->author,
+                'category' => $news->category
+            ];
+        });
     
     return Inertia::render('Welcome', [
-        'techNews' => $techNews,
-        'businessNews' => $businessNews,
-        'healthNews' => $healthNews,
-        'headlines' => $headlines
+        'techNews' => [
+            'success' => $techNews->count() > 0,
+            'articles' => $techNews->toArray()
+        ],
+        'businessNews' => [
+            'success' => $businessNews->count() > 0,
+            'articles' => $businessNews->toArray()
+        ],
+        'healthNews' => [
+            'success' => $healthNews->count() > 0,
+            'articles' => $healthNews->toArray()
+        ],
+        'headlines' => [
+            'success' => $headlines->count() > 0,
+            'articles' => $headlines->toArray()
+        ]
     ]);
 });
 

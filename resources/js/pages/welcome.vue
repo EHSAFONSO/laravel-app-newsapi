@@ -6,7 +6,9 @@
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0;">
           <div style="display: flex; align-items: center; gap: 2rem;">
             <h1 style="font-size: 1.5rem; font-weight: bold; color: #1e293b; margin: 0;">Portal de Notícias</h1>
-            <nav style="display: flex; gap: 1.5rem;">
+            
+            <!-- Desktop Navigation -->
+            <nav style="display: flex; gap: 1.5rem;" class="hidden md:flex">
               <a href="/" style="color: #2563eb; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-bottom: 2px solid #2563eb; text-decoration: none;">
                 Início
               </a>
@@ -18,12 +20,59 @@
               </a>
             </nav>
           </div>
-          <a href="/history" style="display: inline-flex; align-items: center; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; color: #374151; background: white; border: 1px solid #d1d5db; border-radius: 0.375rem; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#f9fafb'" onmouseout="this.style.backgroundColor='white'">
-            <svg style="width: 1rem; height: 1rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Histórico
-          </a>
+          
+          <!-- Desktop Actions -->
+          <div class="hidden md:flex items-center space-x-3">
+            <button 
+              @click="toggleAccessibility"
+              class="p-2 text-gray-600 hover:text-gray-900 transition-colors"
+              title="Menu de Acessibilidade"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Mobile Menu Button -->
+          <div class="md:hidden">
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+              <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="md:hidden" :class="mobileMenuOpen ? 'block' : 'hidden'">
+          <div class="py-4 border-t border-gray-200">
+            <nav class="flex flex-col space-y-2">
+              <a href="/" class="text-blue-600 px-3 py-2 text-sm font-medium border-l-4 border-blue-600">
+                Início
+              </a>
+              <a href="/news" class="text-gray-600 px-3 py-2 text-sm font-medium hover:text-gray-900">
+                Notícias
+              </a>
+              <a href="/history" class="text-gray-600 px-3 py-2 text-sm font-medium hover:text-gray-900">
+                Histórico
+              </a>
+            </nav>
+            <div class="mt-4 pt-4 border-t border-gray-200">
+              <button 
+                @click="toggleAccessibility"
+                class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Acessibilidade
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -83,7 +132,7 @@
           <a
             v-for="(label, key) in categories"
             :key="key"
-            :href="`/news/category/${key}`"
+            :href="key === 'general' ? '/news' : `/news/category/${key}`"
             style="padding: 0.5rem 1rem; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 0.375rem; text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: all 0.2s;"
             onmouseover="this.style.backgroundColor='#f9fafb'" onmouseout="this.style.backgroundColor='white'"
           >
@@ -113,10 +162,11 @@
                 v-if="article.image" 
                 :src="article.image" 
                 :alt="article.title"
+                :data-image-key="`featured-${index}`"
                 style="width: 100%; height: 100%; object-fit: cover;"
-                @error="$event.target.style.display='none'"
+                @error="handleImageError"
               >
-              <div v-if="!article.image || $event?.target?.style?.display === 'none'" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;" :style="getPlaceholderStyle(article)">
+              <div v-if="!article.image || imageErrors[`featured-${index}`]" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;" :style="getPlaceholderStyle(article)">
                 <div style="text-center text-white font-semibold text-lg px-4">
                   {{ article.category || getCategoryFromTitle(article.title) }}
                 </div>
@@ -131,7 +181,7 @@
                 <span style="font-size: 0.75rem; color: #6b7280;">{{ article.date }}</span>
               </div>
               <h4 style="font-size: 0.875rem; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                <a :href="article.url" style="color: inherit; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#1e293b'">
+                <a :href="`/news/${article.id}`" style="color: inherit; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#1e293b'">
                   {{ article.title }}
                 </a>
               </h4>
@@ -139,7 +189,7 @@
                 {{ article.description }}
               </p>
               <a 
-                :href="article.url" 
+                :href="`/news/${article.id}`"
                 style="font-size: 0.75rem; color: #2563eb; font-weight: 500; text-decoration: none; transition: color 0.2s;"
                 onmouseover="this.style.color='#1d4ed8'" onmouseout="this.style.color='#2563eb'"
               >
@@ -212,16 +262,23 @@
     </div>
       </div>
     </footer>
+    
+    <!-- Menu de Acessibilidade -->
+    <AccessibilityMenu />
   </div>
 </template>
 
 <script setup>
 import { useForm } from '@inertiajs/vue3'
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
+import AccessibilityMenu from '../components/AccessibilityMenu.vue'
 
 const searchForm = useForm({
   title: ''
 })
+
+const mobileMenuOpen = ref(false)
+const imageErrors = reactive({})
 
 const categories = ref({
   'general': 'Geral',
@@ -259,6 +316,7 @@ const featuredNews = computed(() => {
   if (props.techNews?.success && props.techNews.articles?.length > 0) {
     const article = props.techNews.articles[0]
     news.push({
+      id: article.id,
       title: article.title,
       description: article.description,
       source: article.source?.name || 'Tech News',
@@ -270,6 +328,7 @@ const featuredNews = computed(() => {
   } else {
     // Fallback para dados de exemplo
     news.push({
+      id: null,
       title: 'Tecnologia: Novos avanços em IA revolucionam o mercado',
       description: 'Empresas de tecnologia anunciam descobertas significativas em inteligência artificial que podem transformar diversos setores.',
       source: 'Tech News',
@@ -284,6 +343,7 @@ const featuredNews = computed(() => {
   if (props.businessNews?.success && props.businessNews.articles?.length > 0) {
     const article = props.businessNews.articles[0]
     news.push({
+      id: article.id,
       title: article.title,
       description: article.description,
       source: article.source?.name || 'Economia Hoje',
@@ -295,6 +355,7 @@ const featuredNews = computed(() => {
   } else {
     // Fallback para dados de exemplo
     news.push({
+      id: null,
       title: 'Economia: Mercado brasileiro mostra sinais de recuperação',
       description: 'Indicadores econômicos apontam para uma recuperação gradual do mercado brasileiro nos próximos meses.',
       source: 'Economia Hoje',
@@ -309,6 +370,7 @@ const featuredNews = computed(() => {
   if (props.healthNews?.success && props.healthNews.articles?.length > 0) {
     const article = props.healthNews.articles[0]
     news.push({
+      id: article.id,
       title: article.title,
       description: article.description,
       source: article.source?.name || 'Saúde Brasil',
@@ -320,6 +382,7 @@ const featuredNews = computed(() => {
   } else {
     // Fallback para dados de exemplo
     news.push({
+      id: null,
       title: 'Saúde: Novas diretrizes para vacinação são anunciadas',
       description: 'Ministério da Saúde divulga novas orientações para campanhas de vacinação em todo o país.',
       source: 'Saúde Brasil',
@@ -336,6 +399,18 @@ const featuredNews = computed(() => {
 const searchNews = () => {
   if (!searchForm.title.trim()) return
   window.location.href = `/news/search?title=${encodeURIComponent(searchForm.title)}`
+}
+
+const toggleAccessibility = () => {
+  // Esta função será chamada pelo componente AccessibilityMenu
+  // O componente gerencia seu próprio estado
+}
+
+const handleImageError = (event) => {
+  const imageKey = event.target.dataset.imageKey
+  if (imageKey) {
+    imageErrors[imageKey] = true
+  }
 }
 
 const formatDate = (dateString) => {

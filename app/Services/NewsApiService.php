@@ -266,6 +266,99 @@ class NewsApiService
         });
     }
 
+    public function getArticleDetails($title, $url = null)
+    {
+        $cacheKey = "article_details_" . md5($title . ($url ?? ''));
+        
+        return Cache::remember($cacheKey, 600, function () use ($title, $url) {
+            try {
+                Log::info("Tentando buscar detalhes do artigo: {$title}");
+                
+                // PRIORIDADE 1: Se temos a URL, tentar buscar o conteúdo completo primeiro
+                // (Isso não consome quota da NewsAPI)
+                if ($url) {
+                    $fullContent = $this->fetchFullArticleContent($url);
+                    if ($fullContent['success']) {
+                        Log::info("Conteúdo completo obtido da URL original (sem usar API)");
+                        return [
+                            'success' => true,
+                            'article' => [
+                                'title' => $title,
+                                'url' => $url,
+                                'content' => $fullContent['content'],
+                                'fullContent' => true,
+                                'source' => ['name' => 'Conteúdo Original']
+                            ]
+                        ];
+                    }
+                }
+                
+                // PRIORIDADE 2: Tentar buscar da API apenas se não temos conteúdo suficiente
+                // Verificar se já temos dados suficientes no banco
+                if ($url) {
+                    Log::info("Tentando buscar da API apenas se necessário");
+                    
+                    $response = Http::get($this->baseUrl . '/everything', [
+                        'q' => $title,
+                        'apiKey' => $this->apiKey,
+                        'pageSize' => 1,
+                        'sortBy' => 'relevancy',
+                        'language' => 'pt,en'
+                    ]);
+
+                    Log::info("Resposta da API para detalhes - Status: " . $response->status());
+
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        $articles = $data['articles'] ?? [];
+                        
+                        if (!empty($articles)) {
+                            $article = $articles[0];
+                            Log::info("Detalhes do artigo encontrados na API");
+                            
+                            // Tentar buscar conteúdo completo da URL do artigo (sem usar API)
+                            $articleUrl = $article['url'] ?? $url;
+                            if ($articleUrl) {
+                                $fullContent = $this->fetchFullArticleContent($articleUrl);
+                                if ($fullContent['success']) {
+                                    $article['content'] = $fullContent['content'];
+                                    $article['fullContent'] = true;
+                                }
+                            }
+                            
+                            return [
+                                'success' => true,
+                                'article' => $article
+                            ];
+                        }
+                    }
+
+                    if ($response->status() === 429) {
+                        Log::warning("API com limite excedido (429) para detalhes do artigo.");
+                        return [
+                            'success' => false,
+                            'error' => 'Limite de requisições da API excedido. Aguarde algumas horas para reset.'
+                        ];
+                    }
+                }
+                
+                // PRIORIDADE 3: Se não conseguimos nada, retornar erro
+                Log::warning("Não foi possível buscar detalhes do artigo da API");
+                return [
+                    'success' => false,
+                    'error' => 'Não foi possível buscar detalhes do artigo.'
+                ];
+
+            } catch (\Exception $e) {
+                Log::error("Erro ao buscar detalhes do artigo: " . $e->getMessage());
+                return [
+                    'success' => false,
+                    'error' => 'Erro ao buscar detalhes do artigo: ' . $e->getMessage()
+                ];
+            }
+        });
+    }
+
     private function getDemoSearchResults($query, $page, $pageSize)
     {
         $demoArticles = [
@@ -390,5 +483,210 @@ class NewsApiService
             'currentPage' => $page,
             'totalPages' => 1
         ];
+    }
+
+    /**
+     * Busca o conteúdo completo de um artigo a partir da URL original
+     */
+    private function fetchFullArticleContent($url)
+    {
+        try {
+            Log::info("Tentando buscar conteúdo completo de: {$url}");
+            
+            $response = Http::timeout(30)->get($url);
+            
+            if ($response->successful()) {
+                $html = $response->body();
+                
+                // Remover scripts e estilos
+                $html = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi', '', $html);
+                $html = preg_replace('/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/mi', '', $html);
+                
+                // Tentar diferentes seletores para encontrar o conteúdo principal
+                $content = $this->extractArticleContent($html);
+                
+                if ($content) {
+                    Log::info("Conteúdo extraído com sucesso");
+                    return [
+                        'success' => true,
+                        'content' => $content
+                    ];
+                }
+            }
+            
+            Log::warning("Não foi possível extrair conteúdo de: {$url}");
+            return [
+                'success' => false,
+                'error' => 'Não foi possível extrair o conteúdo do artigo'
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error("Erro ao buscar conteúdo completo: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Erro ao buscar conteúdo: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Extrai o conteúdo principal de uma página HTML
+     */
+    private function extractArticleContent($html)
+    {
+        // Criar um DOMDocument para parsing
+        $dom = new \DOMDocument();
+        @$dom->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING);
+        $xpath = new \DOMXPath($dom);
+        
+        // Seletores XPath válidos para conteúdo de artigos
+        $selectors = [
+            '//article',
+            '//*[contains(@class, "article")]',
+            '//*[contains(@class, "content")]',
+            '//*[contains(@class, "post")]',
+            '//*[contains(@class, "story")]',
+            '//*[@class="entry-content"]',
+            '//*[@class="post-content"]',
+            '//*[@class="article-content"]',
+            '//*[@class="story-content"]',
+            '//*[@class="content-body"]',
+            '//*[@class="post-body"]',
+            '//*[@class="article-body"]',
+            '//*[@class="story-body"]',
+            '//main',
+            '//*[@class="main-content"]',
+            '//*[@class="main-article"]'
+        ];
+        
+        foreach ($selectors as $selector) {
+            try {
+                $elements = $xpath->query($selector);
+                
+                if ($elements && $elements->length > 0) {
+                    $content = '';
+                    foreach ($elements as $element) {
+                        $content .= $this->extractTextWithParagraphs($element);
+                    }
+                    
+                    if (strlen($content) > 500) { // Se tem conteúdo significativo
+                        return trim($content);
+                    }
+                }
+            } catch (\Exception $e) {
+                // Ignorar erros de XPath e continuar com o próximo seletor
+                continue;
+            }
+        }
+        
+        // Fallback: tentar extrair de tags p
+        try {
+            $paragraphs = $xpath->query('//p');
+            if ($paragraphs && $paragraphs->length > 0) {
+                $content = '';
+                foreach ($paragraphs as $p) {
+                    $text = trim($p->textContent);
+                    if (strlen($text) > 30) { // Parágrafos com conteúdo significativo
+                        $content .= $text . "\n\n";
+                    }
+                }
+                
+                if (strlen($content) > 500) {
+                    return trim($content);
+                }
+            }
+        } catch (\Exception $e) {
+            // Ignorar erros de XPath
+        }
+        
+        return null;
+    }
+
+    /**
+     * Extrai texto preservando a formatação dos parágrafos
+     */
+    private function extractTextWithParagraphs($element)
+    {
+        $content = '';
+        
+        // Processar cada nó filho
+        foreach ($element->childNodes as $child) {
+            if ($child->nodeType === XML_TEXT_NODE) {
+                // Texto direto
+                $text = trim($child->textContent);
+                if (!empty($text)) {
+                    $content .= $text . ' ';
+                }
+            } elseif ($child->nodeType === XML_ELEMENT_NODE) {
+                $tagName = strtolower($child->tagName);
+                
+                switch ($tagName) {
+                    case 'p':
+                        // Parágrafo - adicionar quebra de linha
+                        $text = trim($child->textContent);
+                        if (!empty($text)) {
+                            $content .= $text . "\n\n";
+                        }
+                        break;
+                        
+                    case 'br':
+                        // Quebra de linha
+                        $content .= "\n";
+                        break;
+                        
+                    case 'h1':
+                    case 'h2':
+                    case 'h3':
+                    case 'h4':
+                    case 'h5':
+                    case 'h6':
+                        // Títulos - adicionar quebra de linha
+                        $text = trim($child->textContent);
+                        if (!empty($text)) {
+                            $content .= $text . "\n\n";
+                        }
+                        break;
+                        
+                    case 'div':
+                    case 'section':
+                    case 'article':
+                        // Containers - processar recursivamente
+                        $content .= $this->extractTextWithParagraphs($child);
+                        break;
+                        
+                    case 'ul':
+                    case 'ol':
+                        // Listas
+                        foreach ($child->childNodes as $li) {
+                            if ($li->nodeType === XML_ELEMENT_NODE && strtolower($li->tagName) === 'li') {
+                                $text = trim($li->textContent);
+                                if (!empty($text)) {
+                                    $content .= "• " . $text . "\n";
+                                }
+                            }
+                        }
+                        $content .= "\n";
+                        break;
+                        
+                    case 'blockquote':
+                        // Citações
+                        $text = trim($child->textContent);
+                        if (!empty($text)) {
+                            $content .= '"' . $text . '"\n\n';
+                        }
+                        break;
+                        
+                    default:
+                        // Outros elementos - extrair texto simples
+                        $text = trim($child->textContent);
+                        if (!empty($text)) {
+                            $content .= $text . ' ';
+                        }
+                        break;
+                }
+            }
+        }
+        
+        return $content;
     }
 }
